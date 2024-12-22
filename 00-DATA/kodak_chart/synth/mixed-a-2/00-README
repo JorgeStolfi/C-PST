@@ -1,0 +1,6 @@
+# Last edited on 2006-05-14 21:44:01 by stolfi
+# Synthetic image with simulated Kodak Q-13 chart
+
+# Chart background reflectance = 0.224
+# Chart background finish = { ambient 0.00 diffuse 0.99 specular 0.01 roughness 0.05 }
+# Gray scale finish = { ambient 0.00 diffuse 0.95 specular 0.05 roughness 0.05 }

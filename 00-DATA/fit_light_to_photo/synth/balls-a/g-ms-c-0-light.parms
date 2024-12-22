@@ -1,0 +1,8 @@
+-lamp
+  direction -0.63041 -0.03970 +0.77524
+
+  radius  0.050
+  power 0.4504
+-lamp
+  ambient
+  power 0.3722

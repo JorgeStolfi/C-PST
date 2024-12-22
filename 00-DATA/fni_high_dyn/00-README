@@ -1,0 +1,14 @@
+# Last edited on 2010-05-31 13:33:56 by stolfi
+
+Test images for high dynamic range composition.
+
+  ASUS_c{CCC}_b{BBB}_Y.pgm 
+    Photos of LIV room by the ASUS Eee-PC camera,
+    with contrast set to {CCC} and brightness to {BBB}.
+    
+  MARS_g{GGG}_p{PPP}_Y.pgm
+  MARS_g{GGG}_m{MMM}_Y.pgm
+    A Hubble photo or Mars, with samples scaled by 
+    {GGG}/100 and shifted by plus {PPP}/100
+    or minus {MMM}/100.
+  

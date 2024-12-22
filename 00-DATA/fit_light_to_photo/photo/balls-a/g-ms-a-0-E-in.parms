@@ -1,0 +1,103 @@
+# Last edited on 2006-05-03 14:41:08 by stolfi
+
+# Main lamp, adjustable direction
+  -lamp
+    direction -0.54800 -0.13236 +0.82594
+    radius  0.050
+    power 0.2888
+
+# Floor lamp
+  -lamp
+    direction 00.00000 00.05000 -0.98000
+    wall
+    power 0.2888
+
+# Ambient lamps (positive Z only)
+  -lamp
+    direction -0.85065 -0.52573 +0.00000
+    radius  0.100
+    power 0.0500
+  -lamp
+    direction -0.85065 +0.52573 +0.00000
+    radius  0.100
+    power 0.0500
+  -lamp
+    direction +0.85065 -0.52573 +0.00000
+    radius  0.100
+    power 0.0500
+  -lamp
+    direction +0.85065 +0.52573 +0.00000
+    radius  0.100
+    power 0.0500
+  -lamp
+    direction +0.00000 -0.85065 +0.52573
+    radius  0.100
+    power 0.0500
+  -lamp
+    direction +0.00000 +0.85065 +0.52573
+    radius  0.100
+    power 0.0500
+  -lamp
+    direction -0.52573 +0.00000 +0.85065
+    radius  0.100
+    power 0.0500
+  -lamp
+    direction +0.52573 +0.00000 +0.85065
+    radius  0.100
+    power 0.0500
+  -lamp
+    direction -0.35682 +0.00000 +0.93417
+    radius  0.100
+    power 0.0500
+  -lamp
+    direction +0.35682 +0.00000 +0.93417
+    radius  0.100
+    power 0.0500
+  -lamp
+    direction -0.93417 -0.35682 +0.00000
+    radius  0.100
+    power 0.0500
+  -lamp
+    direction +0.93417 -0.35682 +0.00000
+    radius  0.100
+    power 0.0500
+  -lamp
+    direction -0.93417 +0.35682 +0.00000
+    radius  0.100
+    power 0.0500
+  -lamp
+    direction +0.93417 +0.35682 +0.00000
+    radius  0.100
+    power 0.0500
+  -lamp
+    direction +0.00000 -0.93417 -0.35682
+    radius  0.100
+    power 0.0500
+  -lamp
+    direction +0.00000 +0.93417 -0.35682
+    radius  0.100
+    power 0.0500
+  -lamp
+    direction +0.00000 -0.93417 +0.35682
+    radius  0.100
+    power 0.0500
+  -lamp
+    direction +0.00000 +0.93417 +0.35682
+    radius  0.100
+    power 0.0500
+  -lamp
+    direction -0.57735 -0.57735 +0.57735
+    radius  0.100
+    power 0.0500
+  -lamp
+    direction -0.57735 +0.57735 +0.57735
+    radius  0.100
+    power 0.0500
+  -lamp
+    direction +0.57735 -0.57735 +0.57735
+    radius  0.100
+    power 0.0500
+  -lamp
+    direction +0.57735 +0.57735 +0.57735
+    radius  0.100
+    power 0.0500

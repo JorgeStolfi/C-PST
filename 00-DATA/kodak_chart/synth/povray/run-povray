@@ -1,0 +1,271 @@
+#! /bin/csh -f
+# Last edited on 2006-05-12 17:25:56 by stolfi
+
+set usage = "$0 [ -fast | -fair | -good | -quick ] [ -detail XMIN XMAX YMIN YMAX ] [ -tiny | -small | -plain | -big | -size WD HT ] [ -gamma GAMMAx100 ] [ -scale S ] [ -list DIRLIST ] [ -hist ] [ -qmethod {fs|near|noquant} ] [ -show|-noshow ] [ -preview ] NAME.pov"
+
+# Generates POVRAY rendering of a scene (PPM output)
+# Version specialized for photometric stereo testing
+# 
+# By default, all output (incluring a copy of all scene sources) goes
+# to a subdirectory whose name is the current date and time. The
+# subdirectory is automatically deleted if the run fails. Otherwise
+# the subdirectory's name is stored in the files ".last" in the
+# current directory, and appended to the file DIRLIST (which defaults
+# to "NAME.dirlist"). Also a symbolic link ".lastdir" is made to point
+# to it.
+# 
+# The current directory may include a file called NAME.sizes
+# redefining the csh variables
+#   ${tinysize}   default ( 050 050 )
+#   ${smallsize}  default ( 100 100 )
+#   ${plainsize}  default ( 200 200 )
+#   ${bigsize}    default ( 400 400 )
+# 
+# The current directory may also include files called NAME.options
+# and povray.options, with additional options to be passed to POVRAY
+# (for instance, "+L" options).
+# 
+# The "-preview" option displays a coarse preview of the image while
+# rendering.
+# 
+# If "-qmethod" is anything other than "noquant" (the default),
+# then the resulting image will be color-reduced with ppmvquant 
+# or ppmoquant.
+# 
+ 
+#### in the scene directory ########################################
+# 
+
+set povbin = "${STOLFIHOME}/pkg/povray-3.50c-1/PUB/${PLATFORM}/bin"
+set postertools = "${STOLFIHOME}/posters/tools"
+set povray = ${povbin}/povray
+set pngview = ( "display -title '%d'" )
+
+set path = ( ${postertools} ${povbin} ${path} )
+
+set cmdname = "$0"
+set runargs = "$*"
+echo "${cmdname} ${runargs}"
+
+set size = ( "plain" )
+set rays = 3
+set qual = 9
+set scaleopts = ( )
+set viewopts = ( )
+set show = 0
+# set show = 1
+set render = 1
+unset dirlist
+set detailopts = ( )
+# set histopts = ( "+HTX" )
+set histopts = ( )
+set quantopts = ( )
+set gammax100 = 100
+
+while ( ( $#argv > 0 ) && ( "x$1" =~ x-* ) )
+  if ( "x$1" == "x-quick" ) then 
+    set rays = 1
+    set qual = 4
+    shift
+  else if ( "x$1" == "x-show" ) then 
+    set show = 1
+    shift
+  else if ( "x$1" == "x-noshow" ) then 
+    set show = 0
+    shift
+  else if ( "x$1" == "x-hist" ) then 
+    set histopts = ( "+HTP" )
+    shift
+  else if ( "x$1" == "x-preview" ) then 
+    set viewopts = ( "+D" "+SP32" "+EP4" )
+    shift
+  else if ( ( $#argv >= 5 ) && ( "x$1" == "x-detail" ) ) then 
+    set detailopts = (  "+SC$2" "+EC$3" "+SR$4" "+ER$5" )
+    shift; shift; shift; shift; shift
+  else if ( "x$1" == "x-fast" ) then 
+    set rays = 1
+    set qual = 9
+    shift
+  else if ( "x$1" == "x-fair" ) then 
+    set rays = 2
+    set qual = 9
+    shift
+  else if ( "x$1" == "x-good" ) then 
+    set rays = 4
+    set qual = 9
+    shift
+  else if ( "x$1" == "x-tiny" ) then 
+    set size = ( "tiny" )
+    shift
+  else if ( "x$1" == "x-small" ) then 
+    set size = ( "small" )
+    shift
+  else if ( "x$1" == "x-plain" ) then 
+    set size = ( "plain" )
+    shift
+  else if ( "x$1" == "x-big" ) then 
+    set size = ( "big" )
+    shift
+  else if ( ( $#argv >= 3 ) && ( "x$1" == "x-size" ) ) then 
+    set size = ( $2 $3 )
+    shift; shift; shift
+  else if ( ( $#argv >= 2 ) && ( "x$1" == "x-qmethod" ) ) then 
+    set quantopts = ( "-qmethod" "$2" );  shift; shift
+  else if ( ( $#argv >= 2 ) && ( "x$1" == "x-gamma" ) ) then 
+    set gammax100 = "$2";  shift; shift;
+  else if ( ( $#argv >= 2 ) && ( "x$1" == "x-scale" ) ) then 
+    set scaleopts = ( "-scale" "$2" );  shift; shift;
+  else if ( ( $#argv >= 3 ) && ( "x$1" == "x-list" ) ) then 
+    set dirlist = "$2";  shift; shift
+  else
+    echo 'bad option "'"$1"'"'
+    echo "usage: ${usage}" ; exit 1
+  endif
+end
+
+if ( $#argv != 1 ) then
+  echo "usage: ${usage}"; exit 1
+endif
+ 
+set name = "$1"
+if ( "x${name:e}" != "xpov" ) then
+  echo "usage: ${usage}"; exit 1
+endif
+set name = ${name:r}
+
+if ( ! ( $?dirlist ) ) set dirlist = "${name}.dirlist"
+
+set d = `date +%Y-%m-%d-%H%M%S`
+echo "generating picture in directory $d"
+mkdir $d
+cp -a ${name}.pov $d
+cp -a $0 [a-zA-Z0-9]*.{ini,inc,incx,gif,png,csh,make,awk} $d
+foreach f ( ${name}.{sizes,options,comments} povray.options do-run-povray )
+  if ( -r $f ) cp -p $f $d
+end
+
+set gnice = ( "nice" "+19" )
+
+#
+######################################################################
+
+set curd = "$cwd"
+cd $d
+
+#### in the run sub-directory ########################################
+# 
+
+if ( $#size == 1 ) then
+  if ( -r ${name}.sizes ) then
+    source ${name}.sizes 
+  endif
+  if ( ! $?tinysize )  set tinysize  = ( 050 050 )
+  if ( ! $?smallsize ) set smallsize = ( 100 100 )
+  if ( ! $?plainsize ) set plainsize = ( 200 200 )
+  if ( ! $?bigsize )   set bigsize   = ( 400 400 )
+  if ( "$size[1]" == "tiny" ) then
+    set size = ( ${tinysize} )
+  else if ( "$size[1]" == "small" ) then
+    set size = ( ${smallsize} )
+  else if ( "$size[1]" == "plain" ) then
+    set size = ( ${plainsize} )
+  else if ( "$size[1]" == "big" ) then
+    set size = ( ${bigsize} )
+  else 
+    echo "run-povray: internal bug (size = ${size})"
+    exit 1
+  endif
+endif
+
+if ( -r ${name}.options ) then
+  set nameopts = ( `cat ${name}.options` )
+else
+  set nameopts = ( )
+endif
+if ( -r povray.options ) then
+  set povopts = ( `cat povray.options` )
+else
+  set povopts = ( )
+endif
+
+if ( ${render} ) then
+  echo "${cmdname} ${runargs}" > run-povray.args
+  echo "[`uname -n`] ${cmdname:t} ${runargs}" >> ${name}.comments
+
+  if ( -r ${name}.make ) then
+    ${gnice} -n 19 \
+      make -f ${name}.make all \
+        |& tee ${name}.make.log
+  endif
+endif
+
+# Remove any old output image files:
+/bin/rm -f ${name}.{ppm,png} ${name}-{0,1}.{ppm,png} ${name}-icon.png
+
+# Remove any old symbolic links:
+/bin/rm -f p.{ppm,png} p-{0,1}.{ppm,png} p-icon.png p.comments
+
+# Termination status of povray command:
+set povrayok = 1
+
+if ( ${render} ) then
+  # run povray once:
+  ${gnice} \
+    ${povray} \
+      gamma-${gammax100}.ini \
+      +FP +Q${qual} +R${rays} +W${size[1]} +H${size[2]} \
+      +A0.0 +AM1 \
+      +MB1 \
+      ${histopts} +HN${name}-time.ppm \
+      ${viewopts} ${povopts} ${nameopts} ${detailopts} \
+      +L${STOLFIHOME}/PUB/povray +L.. \
+      +GI${name}-restart.ini \
+      +I${name}.pov \
+      +O${name}.ppm \
+    |& tee povray.log
+
+  if ( ( ! ( -r ${name}.ppm ) ) || ( -z ${name}.ppm ) ) then
+    set povrayok = 0
+  endif
+endif
+
+if ( ${povrayok} ) then
+  ln -s ${name}.ppm p.ppm
+  ln -s ${name}.comments p.comments
+
+  convert ${name}.ppm ${name}.png
+  ln -s ${name}.png p.png
+
+  convert  ${name}.ppm -resize 'x50' ${name}-icon.png
+  ln -s ${name}-icon.png p-icon.png
+endif
+
+if ( ${render} ) then
+  if ( -r ${name}.make ) then
+    make -f ${name}.make clean
+  endif
+endif
+
+#
+######################################################################
+
+cd ${curd}
+
+#### in the scene directory ########################################
+# 
+
+if ( ( -r $d/${name}.png ) && ( ! ( -z $d/${name}.png ) ) ) then
+  echo 'rendering succeeded in directory '"$d"
+  echo "$d" > .last
+  rm -f .lastdir; ln -s "$d" .lastdir
+  echo "$d" >> ${dirlist}
+  if ( ${show} != 0 ) ${pngview} $d/p.png $d/${name}*.{png,ppm} $d/p.comments &
+  exit 0
+else
+  echo 'rendering failed in directory '"$d"
+  if ( ! ${povrayok} ) then
+    echo "deleting directory $d"
+    /bin/rm -rf "$d"
+  endif
+  exit 1
+endif

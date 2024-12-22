@@ -1,0 +1,7 @@
+-lamp
+  direction -0.50705 -0.10220 +0.85583
+  radius  0.050
+  power 0.4655
+  
+-array 12
+  power 0.02

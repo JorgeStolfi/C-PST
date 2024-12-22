@@ -1,0 +1,100 @@
+#! /bin/bash
+# Last edited on 2024-12-21 20:13:34 by stolfi
+
+function mkt()
+{
+  name="$1"; shift;
+  ext="$1"; shift; 
+  gtag="$1"; shift; 
+  kind="$1"; shift; 
+  xctr="$1"; shift;
+  yctr="$1"; shift;
+  rad="$1"; shift;
+  adjctr="$1"; shift;
+  adjstr="$1"; shift;
+  debug="$1"; shift;
+  note="$1"; shift;
+  
+  echo "${name}.${ext}/${gtag}/${kind}/${xctr}/${yctr}/${rad}/${adjctr}/${adjstr}/${note}"
+  sfile="out/scripts/${name}-${ext}-${gtag}.sh"
+  echo "writing ${sfile} ..."
+  sf="${sfile}"
+  rm -f ${sf}
+  printf '#! /bin/bash\n' >> ${sf}
+  printf '# Last edited on DATE TIME by USER\n' >> ${sf}
+  printf '\n' >> ${sf}
+  printf 'source get_options.sh\n' >> ${sf}
+  printf '\n' >> ${sf}
+  printf 'name="'"${name}"'"\n' >> ${sf}
+  printf 'ext="'"${ext}"'"\n' >> ${sf}
+  printf 'gtag="'"${gtag}"'"\n' >> ${sf}
+  printf 'xctr="'"${xctr}"'"\n' >> ${sf}
+  printf 'yctr="'"${yctr}"'"\n' >> ${sf}
+  printf 'rad="'"${rad}"'"\n' >> ${sf}
+  printf 'xstr="0.0"\n' >> ${sf}
+  printf 'ystr="0.0"\n' >> ${sf}
+  printf 'adjctr="'"${adjctr}"'"\n' >> ${sf}
+  printf 'adjrad="'"${adjctr}"'"\n' >> ${sf}
+  printf 'adjstr="'"${adjstr}"'"\n' >> ${sf}
+  printf 'res="0.00125"\n' >> ${sf}
+  printf 'adjres="0.00005"\n' >> ${sf}
+  printf 'note="'"${note}"'"\n' >> ${sf}
+  printf '\n' >> ${sf}
+  printf '../fit_ellipse_to_photo \\\n' >> ${sf}
+  printf '  -image data/${name}.${ext} \\\n' >> ${sf}
+  printf '  -minRadius 6 \\\n' >> ${sf}
+  printf '  -noise 0.05 \\\n' >> ${sf}
+  printf '  -outPrefix out/${name}-${ext}-${gtag} \\\n' >> ${sf}
+  if [[ "/${kind}" == "/S" ]]; then 
+    printf '  -camera \\\n' >> ${sf}
+    printf '    resolution ${res} adjust ${adjres} \\\n' >> ${sf}
+    printf '  -sphere \\\n' >> ${sf}
+  elif [[ "/${kind}" == "/E" ]]; then 
+    printf '  -ellipse \\\n' >> ${sf}
+    printf '    stretch ${xstr} ${ystr} adjust ${adjstr} \\\n' >> ${sf}
+  elif [[ "/${kind}" == "/C" ]]; then 
+    printf '  -circle \\\n' >> ${sf}
+  else
+    echo "duh? ${kind}" 1>&2 ; exit 1
+  fi
+  printf '    center ${xctr} ${yctr} adjust ${adjctr} \\\n' >> ${sf}
+  printf '    radius ${rad} adjust ${adjrad} \\\n' >> ${sf}
+  printf '  ${debug_opt}\n' >> ${sf}
+  chmod a+x ${sf}
+}
+
+for t in \
+  balls-t-005-lum/pgm/A0/S/0015.1/0021.7/0010.3/10.0/10.0/light_bulb \
+  balls-t-005-lum/pgm/B0/S/0040.9/0017.2/0011.3/10.0/10.0/wood_sphere_wht \
+  balls-t-005-lum/pgm/C0/S/0069.1/0024.9/0007.4/10.0/10.0/ping_pong_wht \
+  balls-b-005-lum/pgm/A0/S/0120.4/0178.0/0090.4/10.0/10.0/light_bulb \
+  balls-b-005-lum/pgm/B0/S/0327.5/0138.7/0092.9/10.0/10.0/wood_sphere_wht \
+  balls-b-005-lum/pgm/C0/S/0552.8/0202.6/0065.7/10.0/10.0/ping_pong_wht \
+  rafas-c-005-lum/pgm/A0/S/0072.9/0228.3/0033.2/10.0/10.0/wood_sphere_wht \
+  rafas-c-005-lum/pgm/B0/S/0570.5/0211.9/0034.6/10.0/02.0/ping_pong_wht \
+  blocs-d-002-rgb/ppm/A0/S/0247.3/0074.6/0019.5/02.0/01.0/mouse_ball_12:00 \
+  blocs-d-002-rgb/ppm/B0/S/0148.0/0146.0/0025.0/01.0/01.0/drawer_knob \
+  blocs-d-002-rgb/ppm/C0/S/0066.2/0321.7/0020.2/02.0/01.0/mouse_ball_08:30 \
+  blocs-d-002-rgb/ppm/D0/S/0443.0/0331.0/0020.6/02.0/01.0/mouse_ball_04:30 \
+  blocs-d-002-rgb/ppm/E0/E/0277.0/0159.0/0033.0/01.0/01.0/wooden_donut \
+  blocs-d-002-rgb/ppm/F0/E/0165.6/0067.5/0005.4/02.0/01.0/printed_circle \
+  blocs-d-002-rgb/ppm/G0/E/0129.5/0153.0/0025.1/02.0/06.0/shadow_of_B \
+  blocs-d-002-ymn/ppm/E0/S/0278.1/0159.5/0033.9/01.0/01.0/wooden_donut \
+  balls-b-005-lum/pgm/A1/S/0121.0/0178.0/0094.0/05.0/05.0/light_bulb \
+  balls-b-005-lum/pgm/A2/S/0128.0/0185.0/0084.0/10.0/20.0/light_bulb \
+  balls-b-005-lum/pgm/B1/S/0320.0/0135.0/0095.0/10.0/10.0/wood_sphere_wht \
+  balls-b-005-lum/pgm/C1/S/0557.0/0210.0/0070.0/10.0/02.0/ping_pong_wht \
+  rafas-c-005-lum/pgm/A1/S/0070.0/0223.0/0030.0/10.0/00.0/wood_sphere_wht \
+  rafas-c-005-lum/pgm/B1/S/0575.0/0215.0/0039.0/10.0/02.0/ping_pong_wht \
+  blocs-d-002-rgb/ppm/A1/S/0247.0/0073.0/0020.0/03.0/02.0/mouse_ball_12:00 \
+  blocs-d-002-rgb/ppm/B1/S/0148.0/0146.0/0025.0/01.0/01.0/drawer_knob \
+  blocs-d-002-rgb/ppm/C1/S/0065.0/0322.0/0020.0/03.0/02.0/mouse_ball_08:30 \
+  blocs-d-002-rgb/ppm/D1/S/0443.0/0331.0/0019.0/03.0/02.0/mouse_ball_04:30 \
+  blocs-d-002-rgb/ppm/E1/E/0277.0/0159.0/0033.0/01.0/01.0/wooden_donut \
+  blocs-d-002-rgb/ppm/F1/E/0166.0/0067.0/0004.0/04.0/03.0/printed_circle \
+  blocs-d-002-rgb/ppm/G1/E/0130.0/0151.0/0025.0/05.0/30.0/shadow_of_B \
+  blocs-d-002-ymn/ppm/E1/S/0277.0/0158.0/0032.0/03.0/03.0/wooden_donut \
+; do
+  echo $t
+  mkt `echo $t | tr '/' ' '`
+done

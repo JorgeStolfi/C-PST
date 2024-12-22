@@ -1,0 +1,23 @@
+#! /bin/bash -f
+# Last edited on 2009-02-04 20:09:19 by stolfi
+
+dir="http://www.liv.ic.unicamp.br/~saracchini/Raab/Dados/Imagens"
+
+imgs=( \
+  balls-b=balls-b/005 balls-b=balls-b/012 balls-b=balls-b/023 \
+  rafa-c=rafas-c/005  rafa-c=rafas-c/006  rafa-c=rafas-c/023 \
+)
+
+for den in ${imgs[@]}; do
+
+  d=`echo "${den}" | sed -e 's:[=].*$::g'`
+  e=`echo "${den}" | sed -e 's:^.*[=]::g' -e 's:[/].*$::g'`
+  n=`echo "${den}" | sed -e 's:^.*[/]::g'`
+
+  wget -nv "${dir}/photo/${d}/RAW/L${n}_B128_C016_${n}.ppm"  -O ${e}-${n}.ppm
+  wget -nv "${dir}/photo/${d}/RAW/L${n}_B128_C016_Y${n}.ppm" -O ${e}-${n}.pgm
+  
+  identify ${e}-${n}.p?m
+
+done
+
