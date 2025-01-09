@@ -4,7 +4,7 @@
 
 /* Copyright © 2005 by the State University of Campinas (UNICAMP). */
 /* See the copyright, authorship, and warranty notice at end of file. */
-/* Last edited on 2018-06-30 05:01:29 by stolfilocal */
+/* Last edited on 2025-01-08 16:49:08 by stolfi */
 
 #define PROG_HELP \
   "  " PROG_NAME " \\\n" \
@@ -110,6 +110,7 @@
 #include <float_image.h>
 #include <argparser.h>
 #include <jsfile.h>
+#include <jsprintf.h>
 #include <jsrandom.h>
 #include <jsmath.h>
 #include <r2.h>
@@ -198,7 +199,7 @@ int main(int argc, char** argv)
   }
 
 void write_test_image(char *pref, char *tag, float_image_t *I)
-    char *fileName = jsprintf("%s-%s.fni", pref, tag);
+  { char *fileName = jsprintf("%s-%s.fni", pref, tag);
     write_fni_image(fileName, I);
     free(fileName);
   }

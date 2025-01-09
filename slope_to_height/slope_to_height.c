@@ -4,7 +4,7 @@
 
 #define slope_to_height_C_COPYRIGHT "Copyright © 2005 by the State University of Campinas (UNICAMP)"
 
-/* Last edited on 2015-10-18 02:59:03 by stolfilocal */
+/* Last edited on 2025-01-07 12:17:20 by stolfi */
 
 #define PROG_HELP \
   "  " PROG_NAME " \\\n" \
@@ -414,7 +414,7 @@ void compute_and_write_height_map(options_t *o, float_image_t *IG, float_image_t
     auto void reportSys(int level, pst_imgsys_t *ms_S);
     auto void reportHeights(int level, int iter, int change, bool_t final, float_image_t *ms_OZ);
       /* These procedures are called at various times during the recursive
-         multiscale integration. See {pst_slope_map_to_depth_map_recursive}.
+         multiscale integration. See {pst_integrate_recursive}.
          The {reportHeights} procedure will write all the requested intermediate
          {OZ} and {EZ} images and the error summaries, as well as 
          the final ones. */
@@ -532,7 +532,7 @@ void compute_and_write_height_map(options_t *o, float_image_t *IG, float_image_t
     /* Call recursive integrator: */
     float_image_t *OZ = NULL;
     float_image_t *OW = NULL;
-    pst_slope_map_to_depth_map_recursive
+    pst_integrate_recursive
       ( IG, IW, 0, 
         o->maxIter, o->convTol, o->topoSort,
         &OZ, &OW,
