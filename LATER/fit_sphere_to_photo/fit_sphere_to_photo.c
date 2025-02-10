@@ -4,7 +4,7 @@
 
 /* Copyright © 2006 by the State University of Campinas (UNICAMP).*/
 /* See the copyright, authorship, and warranty notice at end of file.*/
-/* Last edited on 2015-10-18 02:57:42 by stolfilocal*/
+/* Last edited on 2025-01-21 19:53:54 by stolfi*/
 
 #define PROG_HELP \
   PROG_NAME " \\\n" \
@@ -239,7 +239,7 @@
 #include <pst_fit_sphere.h>
 
 typedef struct options_t
-  { name_vec_t images;   /* Names of the FNI files with the sphere's photos. */
+  { string_vec_t images;   /* Names of the FNI files with the sphere's photos. */
     char *outPrefix;     /* Prefix for output file names. */
     /* Parameters for sphere geometry and adjustment: */
     double aperture;     /* Horizontal aperture of the camera, or 0.0. */
@@ -268,7 +268,7 @@ typedef struct options_t
 #define fsp_default_adjStep   0.25
   /* Default geometry adjustment step (in pixels). */
 
-image_vec_t fsp_read_float_image_list(name_vec_t *name, int *NCP, int *NXP, int *NYP);
+image_vec_t fsp_read_float_image_list(string_vec_t *name, int *NCP, int *NXP, int *NYP);
   /* Reads a list of {NF} images, where {NF=name.ne}, from the files
     called {name[0..NF-1]}. If any name is "-", reads the image from
     {stdin}. 
@@ -509,7 +509,7 @@ void fsp_write_light_field_parameters(char *prefix, int i, pst_light_t *lht)
     free(name);
   }
 
-image_vec_t fsp_read_float_image_list(name_vec_t *name, int *NCP, int *NXP, int *NYP)
+image_vec_t fsp_read_float_image_list(string_vec_t *name, int *NCP, int *NXP, int *NYP)
   { image_vec_t IMVEC = image_vec_new(name->ne);
     int i;
     for (i = 0; i < name->ne; i++)
@@ -582,7 +582,7 @@ options_t *fsp_parse_options(int argc, char **argv)
     
     argparser_get_keyword(pp, "-images");
     int NF = -1; /* Number of light fields. */
-    o->images = pst_parse_file_name_list(pp, &NF);
+    o->images = argparser_get_next_file_name_list(pp, &NF);
     if (NF == 0) { argparser_error(pp, "must specify at least one image file"); }
 
     argparser_get_keyword(pp, "-sphere");

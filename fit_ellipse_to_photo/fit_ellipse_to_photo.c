@@ -5,7 +5,7 @@
 #define fit_ellipse_to_photo_C_COPYRIGHT \
   "Copyright © 2009 by the State University of Campinas (UNICAMP)"
 
-/* Last edited on 2020-10-11 03:47:23 by jstolfi*/
+/* Last edited on 2025-01-21 19:50:23 by stolfi*/
 
 /* !!! See how it is best to generate the normal map. !!! */
 /* !!! Add radial distortion {kappa} to the parameters. !!! */
@@ -229,10 +229,10 @@
 #include <ellipse_crs_args.h>
 #include <jsfile.h>
 #include <argparser.h>
+#include <argparser_extra.h>
 #include <minn_plot.h>
 
 #include <pst_basic.h>
-#include <pst_argparser.h>
 #include <pst_camera.h>
 #include <pst_geom.h>
 #include <pst_fit_ellipse.h>
@@ -910,7 +910,7 @@ options_t *fep_parse_options(int argc, char **argv)
     options_t *o = (options_t *)malloc(sizeof(options_t)); 
     
     argparser_get_keyword(pp, "-image");
-    o->image = pst_parse_next_file_name(pp);
+    o->image = argparser_get_next_file_name(pp);
 
     /* Parse the initial ellipse params and adjstment amounts: */
     if (argparser_keyword_present(pp, "-sphere"))

@@ -4,7 +4,7 @@
 
 #define fni_lin_fit_C_COPYRIGHT "Copyright © 2010 by the State University of Campinas (UNICAMP)"
 
-/* Last edited on 2010-06-22 11:07:23 by stolfi */
+/* Last edited on 2025-01-18 13:02:44 by stolfi */
 
 #define PROG_HELP \
   PROG_NAME  " \\\n" \
@@ -177,7 +177,7 @@ int main(int argc, char** argv)
           }
         else
           { /* Second and later images: check s1zes. */
-            float_image_check_size(img, NC, NX, NY);
+            float_image_check_size(img, NC, NX, NY, "mismatched input images");
           }
           
         /* All images: accumulate the least-squares scalar products. */

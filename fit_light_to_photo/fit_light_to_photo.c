@@ -4,7 +4,7 @@
 
 /* Copyright © 2004 by the Fluminense Federal University (UFF).*/
 /* See the copyright, authorship, and warranty notice at end of file.*/
-/* Last edited on 2015-10-18 02:58:20 by stolfilocal */
+/* Last edited on 2025-01-18 13:03:31 by stolfi */
 
 #define PROG_HELP \
   PROG_NAME "\\\n" \
@@ -255,7 +255,7 @@ int main (int argc,char** argv)
 
     /* Read normal map: */
     float_image_t *NRM = flp_read_float_image(o->normal);
-    float_image_check_size(NRM, 3, NX, NY);
+    float_image_check_size(NRM, 4, NX, NY, "bad normal map");
     
     /* Regularize light field: */
     fprintf(stderr, "regularizing lamp channels ...\n");

@@ -4,7 +4,7 @@
 
 #define fni_log_ratio_C_COPYRIGHT "Copyright © 2008 by the State University of Campinas (UNICAMP)"
 
-/* Last edited on 2008-12-13 10:46:31 by stolfi */
+/* Last edited on 2025-01-15 07:53:34 by stolfi */
 
 /* !!! This program should be replaced by {fni_arith}. */
 
@@ -90,7 +90,7 @@ void write_fni_file(float_image_t *I, char *fileName, int indent);
   /* Writes the float image {I} in a human-readable format, to a file
     called "{fileName}" (which should include the extension ".fni").
     If {fileName} is "-", writes the image to standard output.
-    Diagnostic messages are indented by {indent}. */
+    Diagnostic messages are indented by {indent} spaces. */
 
 options_t *parse_options(int argc, char **argv);
   /* Parses the command line arguments and packs them as an {options_t}. */
@@ -157,7 +157,7 @@ float_image_t *read_fni_file(char *fileName)
     return I;
   }
 
-void write_fni_file(float_image_t *I, char *fileName, int indent)
+void write_fni_file(float_image_t *I, char *fileName, int indent)???
   { demand(fileName != NULL, "file name not given");
     FILE* wr = open_write(fileName, TRUE);
     float_image_write(wr, I);

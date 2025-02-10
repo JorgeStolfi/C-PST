@@ -1,4 +1,4 @@
-/* Last edited on 2024-12-21 18:11:26 by stolfi */
+/* Last edited on 2025-01-28 16:09:05 by stolfi */
 #define PROG_NAME "virtual_gauge"
 #define PROG_DESC "fits a simple lighting model to a spherical light gauge image"
 
@@ -181,24 +181,6 @@ double compute_shade(double D, r3_t *n, light_field_t *L);
     albedo {D} and normal {n} under a monochromatic light flow {L}.
     Assumes that the backplane is perpendicular to the Z axis. */
 
-double compute_shade(double D, r3_t *n, light_field_t *L)
-  {
-    bool_t debug = FALSE;
-    /* Light flow terms: */
-    double val_d = L->Ed*r3_dot(&(L->f),n);
-    if(val_d < 0 ) val_d = 0;
-    double val_b = L->Eb*(0.5*(1 - n->c[2]));
-    double val_i = L->Ei;
-    /* Surface radiance: */
-    double rad = D*(val_d + val_b + val_i);
-    if (debug)
-      { r3_gen_print(stderr, n, "%+9.6f", "  n = (", " ", ")");
-        fprintf(stderr, "  direct = %8.6f  backplane = %8.6f  isotropic = %8.6f", val_d, val_b, val_i);
-        fprintf(stderr, "  radiance = %8.6f\n", rad);
-      }
-    return rad;
-  }
-
 typedef double basis_function(int i, r3_t *X) ;
 
 void build_least_squares_system
@@ -218,8 +200,128 @@ void build_least_squares_system
     squares system for approximating {F} with the basis {phi}.
     
     Uses the function dot product {<F,G>} defined as the sum of
-    {F(X[i])*G(X[i])} over every {i} such that {sel[i]} is true.
-*/
+    {F(X[i])*G(X[i])} over every {i} such that {sel[i]} is true. */
+
+/* IMPLEMENTATIONS */
+
+int main(int argc, char** argv)
+  {
+    options_t *o = parse_args(argc,argv) ;
+
+    gauge_data_t *gin = o->gin;
+    assert(! isnan(gin->E.rad));
+    assert(! isnan(gin->E.ctr.c[0]));
+    
+    test_geometry_functions(&(gin->E));
+    
+    /* Get the input gauge image {img_in} and its extension {ext}: */
+    float_image_t *img_in = read_gauge_image(gin->image, o->gamma);
+    
+    int NC = img_in->sz[0];
+    assert(NC <= MAX_NC);
+
+    int NXin = img_in->sz[1];
+    int NYin = img_in->sz[2];
+    
+    /* Allocate the pixel mask: */
+    float_image_t *img_mk = float_image_new(1, NXin, NYin);
+    
+    /* Extract the normal and intensity data from the input image: */
+    r3_t *X;
+    int NP;
+    double **F; /* We have NC arrays of values. */ 
+    extract_data_from_gauge_image(img_in, img_mk, &(gin->E), &(gin->view), &X, &F, &NP);
+
+    /* Write mask for input image: */
+    if (o->maskOut != NULL)
+      { bool_t isMask = TRUE; /* The sample values 0 and 1 are special: */
+        write_image(o->maskOut, img_mk, isMask, o->gamma);
+        float_image_free(img_mk);
+      }
+
+    /* Allocate the lighting parameters for all channels: */
+    light_field_t L[NC];
+
+    if(o->backPlane)
+      { fprintf(stderr,"Assuming indirect lighting by a uniform backplane only (Ei = 0).\n"); }
+    else
+      { fprintf(stderr,"Assuming isotropic indirect lighting only (Eb = 0).\n"); }
+
+    /* Fit models to each channel: */
+    int c;
+    for (c = 0; c < NC; c++)
+      {
+        fprintf(stderr,"Processing Channel %d\n",c);
+        /* Compute the field parameters {L[c]} for this channel: */
+        double Dc = gin->albedo[c];
+        light_field_t *Lc = &(L[c]);
+        compute_lighting_parameters(Dc, X, F[c], NP, o->backPlane, Lc);
+
+      }
+    if (o->paramsOut != NULL)
+      { /* Write fitted parameters to disk: */
+        write_light_field_parameters(o->paramsOut, c, gin->albedo, L);
+      }
+     
+    if (o->virtual)
+      { 
+        /* Provide defaults for output gauge image: */
+        gauge_data_t *got = o->got;
+        assert(got->image != NULL);
+
+        assert(got->magnify >= 1);
+        int mag = got->magnify;
+        
+        assert(got->margin >= 0);
+        int mrg = got->margin;
+        
+        assert(isnan(got->E.rad));
+        got->E.rad = mag*gin->E.rad;
+        
+        assert(isnan(got->E.ctr.c[0]));
+        got->E.ctr.c[0] = mag*gin->E.ctr.c[0] + mrg;
+        got->E.ctr.c[1] = mag*gin->E.ctr.c[1] + mrg;
+        
+        assert(isnan(got->E.str.c[0]));
+        got->E.str.c[0] = mag*gin->E.str.c[0];
+        got->E.str.c[1] = mag*gin->E.str.c[1];
+        
+        assert(isnan(got->view.c[0]));
+        got->view = gin->view;
+        
+        /* Choose the image dimensions: */
+        int NXot = mag * NXin + 2*mrg;
+        int NYot = mag * NYin + 2*mrg;
+        
+        float_image_t *img_ot = float_image_new(NC, NXot, NYot);
+        
+        paint_synthetic_gauge_image(img_ot, &(got->E), &(got->view), got->albedo, L);
+        
+        /* Write virtual gauge image: */
+        bool_t uniform = TRUE; /* Assume that sample values are smoothly distributed: */
+        write_image(got->image, img_ot, uniform, o->gamma);
+        float_image_free(img_ot);
+      }
+    return 0;
+  }
+
+double compute_shade(double D, r3_t *n, light_field_t *L)
+  {
+    bool_t debug = FALSE;
+    /* Light flow terms: */
+    double val_d = L->Ed*r3_dot(&(L->f),n);
+    if(val_d < 0 ) val_d = 0;
+    double val_b = L->Eb*(0.5*(1 - n->c[2]));
+    double val_i = L->Ei;
+    /* Surface radiance: */
+    double rad = D*(val_d + val_b + val_i);
+    if (debug)
+      { r3_gen_print(stderr, n, "%+9.6f", "  n = (", " ", ")");
+        fprintf(stderr, "  direct = %8.6f  backplane = %8.6f  isotropic = %8.6f", val_d, val_b, val_i);
+        fprintf(stderr, "  radiance = %8.6f\n", rad);
+      }
+    return rad;
+  }
 
 void build_least_squares_system
   ( double A[],
@@ -1051,105 +1153,4 @@ void test_geometry_functions(ellipse_crs_t *E)
     assert(pixel_position_in_gauge_image(x, y, E) == +1);
     assert(pixel_position_in_gauge_image(x + irad - 2, y, E) == +1);
     assert(pixel_position_in_gauge_image(x, y + irad - 2, E) == +1);
-  }
-
-int main(int argc, char** argv)
-  {
-    options_t *o = parse_args(argc,argv) ;
-
-    gauge_data_t *gin = o->gin;
-    assert(! isnan(gin->E.rad));
-    assert(! isnan(gin->E.ctr.c[0]));
-    
-    test_geometry_functions(&(gin->E));
-    
-    /* Get the input gauge image {img_in} and its extension {ext}: */
-    float_image_t *img_in = read_gauge_image(gin->image, o->gamma);
-    
-    int NC = img_in->sz[0];
-    assert(NC <= MAX_NC);
-
-    int NXin = img_in->sz[1];
-    int NYin = img_in->sz[2];
-    
-    /* Allocate the pixel mask: */
-    float_image_t *img_mk = float_image_new(1, NXin, NYin);
-    
-    /* Extract the normal and intensity data from the input image: */
-    r3_t *X;
-    int NP;
-    double **F; /* We have NC arrays of values. */ 
-    extract_data_from_gauge_image(img_in, img_mk, &(gin->E), &(gin->view), &X, &F, &NP);
-
-    /* Write mask for input image: */
-    if (o->maskOut != NULL)
-      { bool_t isMask = TRUE; /* The sample values 0 and 1 are special: */
-        write_image(o->maskOut, img_mk, isMask, o->gamma);
-        float_image_free(img_mk);
-      }
-
-    /* Allocate the lighting parameters for all channels: */
-    light_field_t L[NC];
-
-    if(o->backPlane)
-      { fprintf(stderr,"Assuming indirect lighting by a uniform backplane only (Ei = 0).\n"); }
-    else
-      { fprintf(stderr,"Assuming isotropic indirect lighting only (Eb = 0).\n"); }
-
-    /* Fit models to each channel: */
-    int c;
-    for (c = 0; c < NC; c++)
-      {
-        fprintf(stderr,"Processing Channel %d\n",c);
-        /* Compute the field parameters {L[c]} for this channel: */
-        double Dc = gin->albedo[c];
-        light_field_t *Lc = &(L[c]);
-        compute_lighting_parameters(Dc, X, F[c], NP, o->backPlane, Lc);
-
-      }
-    if (o->paramsOut != NULL)
-      { /* Write fitted parameters to disk: */
-        write_light_field_parameters(o->paramsOut, c, gin->albedo, L);
-      }
-     
-    if (o->virtual)
-      { 
-        /* Provide defaults for output gauge image: */
-        gauge_data_t *got = o->got;
-        assert(got->image != NULL);
-
-        assert(got->magnify >= 1);
-        int mag = got->magnify;
-        
-        assert(got->margin >= 0);
-        int mrg = got->margin;
-        
-        assert(isnan(got->E.rad));
-        got->E.rad = mag*gin->E.rad;
-        
-        assert(isnan(got->E.ctr.c[0]));
-        got->E.ctr.c[0] = mag*gin->E.ctr.c[0] + mrg;
-        got->E.ctr.c[1] = mag*gin->E.ctr.c[1] + mrg;
-        
-        assert(isnan(got->E.str.c[0]));
-        got->E.str.c[0] = mag*gin->E.str.c[0];
-        got->E.str.c[1] = mag*gin->E.str.c[1];
-        
-        assert(isnan(got->view.c[0]));
-        got->view = gin->view;
-        
-        /* Choose the image dimensions: */
-        int NXot = mag * NXin + 2*mrg;
-        int NYot = mag * NYin + 2*mrg;
-        
-        float_image_t *img_ot = float_image_new(NC, NXot, NYot);
-        
-        paint_synthetic_gauge_image(img_ot, &(got->E), &(got->view), got->albedo, L);
-        
-        /* Write virtual gauge image: */
-        bool_t uniform = TRUE; /* Assume that sample values are smoothly distributed: */
-        write_image(got->image, img_ot, uniform, o->gamma);
-        float_image_free(img_ot);
-      }
-    return 0;
   }

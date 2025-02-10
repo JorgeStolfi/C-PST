@@ -4,7 +4,7 @@
 
 /* Copyright © 2004 by the Fluminense Federal University (UFF). */
 /* See the copyright, authorship, and warranty notice at end of file. */
-/* Last edited on 2015-10-18 02:58:54 by stolfilocal */
+/* Last edited on 2025-01-21 19:53:41 by stolfi */
 
 #define PROG_HELP \
   PROG_NAME "\\\n" \
@@ -139,6 +139,7 @@
 
 #include <float_image.h>
 #include <argparser.h>
+#include <argparser_extra.h>
 #include <jsfile.h>
 #include <jstime.h>
 #include <affirm.h>
@@ -153,14 +154,14 @@
 typedef struct gauge_opts_t  /* Parameters of a gauge from the command line: */
   { char* normal;        /* Filename of the normal map of gauge {g}. */
     r2_t pos;            /* Nominal position of gauge {g} in scene images. */
-    name_vec_t photos;   /* {photos[i]} is the filename of gauge's image under light {i}. */
+    string_vec_t photos;   /* {photos[i]} is the filename of gauge's image under light {i}. */
   } gauge_opts_t;
 
 vec_typedef(gauge_opts_vec_t,gauge_opts_vec,gauge_opts_t);
 
 typedef struct options_t
   { int NF;              /* Number of light fields. */
-    name_vec_t photos;   /* {photos[i]} is the filename of scene image under light {i}. */
+    string_vec_t photos;   /* {photos[i]} is the filename of scene image under light {i}. */
     int NG;              /* Number of gauge objects. */
     gauge_opts_vec_t Go; /* {Go[g]} contains the command line arguments of gauge {g}. */
     int maxval;          /* Max pixel value in original (quantized) scene images, or 0. */
@@ -168,7 +169,7 @@ typedef struct options_t
     char *outPrefix;     /* Prefix for output file names. */
   } options_t;
 
-image_vec_t ptn_read_images(name_vec_t *name, int *NCP, int *NXP, int *NYP);
+image_vec_t ptn_read_images(string_vec_t *name, int *NCP, int *NXP, int *NYP);
   /* Reads a list of multichannel float-valued images {img[*]} from
     the files named in {name[*]}. All images must have the same
     dimensions, channel count, and color space. Returns in {*NXP,*NYP}
@@ -282,7 +283,7 @@ void ptn_write_float_image(char *name, char *tag, float_image_t *I)
     free(fileName);
   }
 
-image_vec_t ptn_read_images(name_vec_t *name, int *NCP, int *NXP, int *NYP)
+image_vec_t ptn_read_images(string_vec_t *name, int *NCP, int *NXP, int *NYP)
   { int NF = name->ne; /* Number of files: */
     image_vec_t imv = image_vec_new(name->ne);
     int i;
@@ -337,7 +338,7 @@ options_t *ptn_parse_options(int argc, char **argv)
     /* Parse list {o->photos} of scene images, obtain {o->NF}: */
     argparser_get_keyword(pp, "-scene");
     o->NF = -1;
-    o->photos = pst_parse_file_name_list(pp, &(o->NF));
+    o->photos = argparser_get_next_file_name_list(pp, &(o->NF));
     if (o->NF < 1) { argparser_error(pp, "no scene images given"); }
       
     /* Parse list of gauge images, obtain {o->NG}: */
@@ -386,7 +387,7 @@ gauge_opts_t ptn_parse_gauge_specs(argparser_t *pp, int NF)
     gop.pos = (r2_t){{posx, posy}};
 
     /* Get name of gauge normal map: */
-    { char *name = pst_parse_next_file_name(pp);
+    { char *name = argparser_get_next_file_name(pp);
       if (name == NULL) 
         { argparser_error(pp, "missing filename of gauge normal map name"); }
       gop.normal = name;
@@ -394,7 +395,7 @@ gauge_opts_t ptn_parse_gauge_specs(argparser_t *pp, int NF)
     
     /* Get names of gauge images under each light field: */
     assert(NF >= 0);
-    gop.photos = pst_parse_file_name_list(pp, &(NF));
+    gop.photos = argparser_get_next_file_name_list(pp, &(NF));
     
     return gop;
   }

@@ -4,7 +4,7 @@
 
 #define slope_to_height_C_COPYRIGHT "Copyright © 2005 by the State University of Campinas (UNICAMP)"
 
-/* Last edited on 2025-01-07 12:17:20 by stolfi */
+/* Last edited on 2025-01-16 17:39:47 by stolfi */
 
 #define PROG_HELP \
   "  " PROG_NAME " \\\n" \
@@ -303,20 +303,20 @@ typedef struct options_t
     bool_t debugZ;        /* TRUE writes out the intermediate Z images. */
     bool_t debugG;        /* TRUE writes out the intermediate slope and weight arrays. */
     bool_t debugSys;      /* TRUE writes the linear system(s). */
-    int debugIter;        /* Frequency for debugging output during iteration, or 0 if none. */
+    int32_t debugIter;        /* Frequency for debugging output during iteration, or 0 if none. */
   } options_t;
 
 float_image_t *read_fni_file(char *fileName);
   /* Reads a FNI image from file "{fileName}" (which should include the extension ".fni").
     If {fileName} is "-", reads from standard input. */
 
-void write_fni_file(float_image_t *I, char *fileName, int indent);
+void write_fni_file(float_image_t *I, char *fileName, int32_t indent);
   /* Writes the float image {I} in a human-readable format, to a file
     called "{fileName}" (which should include the extension ".fni").
     If {fileName} is "-", writes the image to standard output.
     Diagnostic messages are indented by {indent}. */
 
-options_t *parse_options(int argc, char **argv);
+options_t *parse_options(int32_t argc, char **argv);
   /* Parses the command line arguments and packs them as an {options_t}. */
 
 void compute_and_write_height_map(options_t *o, float_image_t *IG, float_image_t *IW, float_image_t *RZ);
@@ -328,11 +328,11 @@ void compute_and_write_height_map(options_t *o, float_image_t *IG, float_image_t
     recursion, and possibly also after certain iterations at each
     level. */
 
-int main(int argc,char** argv);
+int32_t main(int32_t argc,char** argv);
 
 /* IMPLEMENTATIONS */
 
-int main(int argc, char** argv)
+int32_t main(int32_t argc, char** argv)
   {
     options_t *o = parse_options(argc, argv);
     
@@ -373,8 +373,8 @@ int main(int argc, char** argv)
 void compute_and_write_height_map(options_t *o, float_image_t *IG, float_image_t *IW, float_image_t *RZ)
   {
     demand(IG->sz[0] == 2, "gradient map must have two channels");
-    int NX_G = IG->sz[1];
-    int NY_G = IG->sz[2];
+    int32_t NX_G = IG->sz[1];
+    int32_t NY_G = IG->sz[2];
     
     /* Check the slope weight map {IW}: */
     if (IW != NULL)
@@ -384,8 +384,8 @@ void compute_and_write_height_map(options_t *o, float_image_t *IG, float_image_t
       }
     
     /* Check the reference height map {RZ}: */
-    int NX_RZ = 0;
-    int NY_RZ = 0;
+    int32_t NX_RZ = 0;
+    int32_t NY_RZ = 0;
     bool_t interpolate_OZ;  /* Tells whether {OZ} must be reduced by 1 before comparison. */
     if (RZ != NULL)
       { 
@@ -405,36 +405,36 @@ void compute_and_write_height_map(options_t *o, float_image_t *IG, float_image_t
     /* Data for the current mscale level, saved by the debugging procs: */
     float_image_t *ms_OW[MAX_LEVEL+1]; 
     float_image_t *ms_RZ[MAX_LEVEL+1];
-    int k;
+    int32_t k;
     for (k = 0; k <= MAX_LEVEL; k++) { ms_OW[k] = ms_RZ[k] = NULL; }
 
-    int cur_level = -1;
+    int32_t cur_level = -1;
 
-    auto void reportData(int level, float_image_t *ms_IG, float_image_t *ms_IW);
-    auto void reportSys(int level, pst_imgsys_t *ms_S);
-    auto void reportHeights(int level, int iter, int change, bool_t final, float_image_t *ms_OZ);
+    auto void reportData(int32_t level, float_image_t *cur_G, float_image_t *cur_W);
+    auto void reportSys(int32_t level, pst_imgsys_t *cur_S);
+    auto void reportHeights(int32_t level, int32_t iter, int32_t change, bool_t final, float_image_t *cur_Z, float_image_t *cur_U);
       /* These procedures are called at various times during the recursive
          multiscale integration. See {pst_integrate_recursive}.
          The {reportHeights} procedure will write all the requested intermediate
-         {OZ} and {EZ} images and the error summaries, as well as 
+         {Z} and {EZ} images and the error summaries, as well as 
          the final ones. */
     
-    void reportData(int level, float_image_t *cur_IG, float_image_t *cur_IW)
+    void reportData(int32_t level, float_image_t *cur_G, float_image_t *cur_W)
       {
         /* This procedure is called once per leve, on the way up. */
         
         assert(level <= MAX_LEVEL);
-        int indent = 2*level+2;
+        int32_t indent = 2*level+2;
         
         if (o->debugG)
           { /* Write out the scaled slope and weight maps: */
-            float_image_mscale_write_file(cur_IG, debugPrefix, level, -1, "dZ", indent);
-            if (cur_IW != NULL) 
-              { float_image_mscale_write_file(cur_IW, debugPrefix, level, -1, "W", indent); }
+            float_image_mscale_write_file(cur_G, debugPrefix, level, -1, "dZ", indent);
+            if (cur_W != NULL) 
+              { float_image_mscale_write_file(cur_W, debugPrefix, level, -1, "W", indent); }
           }
           
-        int NX_cur_RZ = 0;  /* Cols of the reference height map for this level. */
-        int NY_cur_RZ = 0;  /* Rows of the reference height map for this level. */
+        int32_t NX_cur_RZ = 0;  /* Cols of the reference height map for this level. */
+        int32_t NY_cur_RZ = 0;  /* Rows of the reference height map for this level. */
         if (RZ != NULL)
           { /* Compute and save the height reference map: */
             if (level == 0)
@@ -445,47 +445,47 @@ void compute_and_write_height_map(options_t *o, float_image_t *IG, float_image_t
               { assert(level == cur_level + 1); 
                 assert(ms_RZ[cur_level] != NULL);
                 float_image_t *pre_RZ = ms_RZ[cur_level]; /* Previous level's ref map. */
-                int NX_pre_IG = pre_RZ->sz[1];  /* Cols of the reference height map for this level. */
-                int NY_pre_IG = pre_RZ->sz[2];  /* Rows of the reference height map for this level. */
+                int32_t NX_pre_IG = pre_RZ->sz[1];  /* Cols of the reference height map for this level. */
+                int32_t NY_pre_IG = pre_RZ->sz[2];  /* Rows of the reference height map for this level. */
                 if (o->verbose) 
                   { fprintf(stderr, "%*sShrinking reference map from %d × %d to", indent, "", NX_pre_IG, NY_pre_IG); }
-                int avgWidth = 2;
-                ms_RZ[level] = pst_height_map_shrink(ms_RZ[cur_level], avgWidth);
+                int32_t avgWidth = 2;
+                ms_RZ[level] = pst_height_map_shrink(ms_RZ[cur_level]);
               }
             NX_cur_RZ = ms_RZ[level]->sz[1];
             NY_cur_RZ = ms_RZ[level]->sz[2];
             if (o->verbose) { fprintf(stderr, " %d × %d\n", NX_cur_RZ, NY_cur_RZ); }
           }
           
-        bool_t needs_OW = (RZ != NULL) && (IW != NULL) && (o->debugZ || level == 0);
-        if (needs_OW)
+        bool_t needs_W = (RZ != NULL) && (IW != NULL) && (o->debugZ || level == 0);
+        if (needs_W)
           { /* Compute and save the height confidence map: */
             if (o->verbose) 
               { fprintf(stderr, "%*sComputing the reduced height confidence map ...\n", indent, ""); }
-            ms_OW[level] = pst_weight_map_slope_to_height(cur_IW, TRUE, NX_cur_RZ, NY_cur_RZ);
+            ms_W[level] = pst_weight_map_slope_to_height(cur_W, TRUE, NX_cur_RZ, NY_cur_RZ);
           }
         else
-          { ms_OW[level] = NULL; }
+          { ms_W[level] = NULL; }
           
         cur_level = level;
       }
       
-    void reportSys(int level, pst_imgsys_t *ms_S)
+    void reportSys(int32_t level, pst_imgsys_t *cur_S)
       {
         /* This procedure is called once per level on the way down. */
         assert(level <= MAX_LEVEL);
-        int indent = 2*level+2;
+        int32_t indent = 2*level+2;
         
         if (o->debugSys)
-          { pst_imgsys_write_report(ms_S, debugPrefix, level, "S", indent); }
+          { pst_imgsys_write_report(cur_S, debugPrefix, level, "S", indent); }
       }
     
-    void reportHeights(int level, int iter, int change, bool_t final, float_image_t *ms_OZ)
+    void reportHeights(int32_t level, int32_t iter, int32_t change, bool_t final, float_image_t *ms_Z, float_image_t *cur_U)
       { 
         /* This procedure is called at least once per level on the way down, including
           once with {final=TRUE}. */
         assert(level <= MAX_LEVEL);
-        int indent = 2*level+2;
+        int32_t indent = 2*level+2;
         
         /* Decide whether to write the data, and how: */
         bool_t writeAsIter = (o->debugIter > 0) && (final || (iter % o->debugIter == 0));
@@ -498,11 +498,11 @@ void compute_and_write_height_map(options_t *o, float_image_t *IG, float_image_t
           { bool_t writeImages = o->debugZ;
             bool_t writeError = writeImages && analyzeError;
             if (writeError) {  assert(ms_RZ[level] != NULL); }
-            if (writeError && (IW != NULL)) { assert(ms_OW[level] != NULL); }
+            if (writeError && (IW != NULL)) { assert(ms_W[level] != NULL); }
             pst_height_map_level_analyze_and_write
-              ( debugPrefix, level, TRUE, iter, TRUE, change, 
-                ms_OZ, ms_RZ[level], ms_OW[level], 
-                writeImages, writeError, indent
+              ( debugPrefix, level, iter, change, 
+                ms_Z, ms_RZ[level], ms_W[level], 
+                writeImages, writeError
               );
           }
         
@@ -510,11 +510,11 @@ void compute_and_write_height_map(options_t *o, float_image_t *IG, float_image_t
           { bool_t writeImages = o->debugZ;
             bool_t writeError = writeImages && analyzeError;
             if (writeError) {  assert(ms_RZ[level] != NULL); }
-            if (writeError && (IW != NULL)) { assert(ms_OW[level] != NULL); }
+            if (writeError && (IW != NULL)) { assert(ms_W[level] != NULL); }
             pst_height_map_level_analyze_and_write
-              ( debugPrefix, level, TRUE, iter, FALSE, change, 
-                ms_OZ, ms_RZ[level], ms_OW[level], 
-                writeImages, writeError, indent
+              ( debugPrefix, level, -1, change, 
+                ms_Z, ms_RZ[level], ms_W[level], 
+                writeImages, writeError
               );
           }
         
@@ -522,32 +522,32 @@ void compute_and_write_height_map(options_t *o, float_image_t *IG, float_image_t
           { bool_t writeImages = TRUE;
             bool_t writeError = writeImages && analyzeError;
             pst_height_map_level_analyze_and_write
-              ( o->outPrefix, level, FALSE, iter, FALSE, change, 
-                ms_OZ, ms_RZ[level], ms_OW[level], 
-                writeImages, writeError, indent
+              ( o->outPrefix, -1, -1, change, 
+                ms_Z, ms_RZ[level], ms_W[level], 
+                writeImages, writeError
               );
           }
       }
 
     /* Call recursive integrator: */
-    float_image_t *OZ = NULL;
-    float_image_t *OW = NULL;
+    float_image_t *Z = NULL;
+    float_image_t *W = NULL;
     pst_integrate_recursive
       ( IG, IW, 0, 
         o->maxIter, o->convTol, o->topoSort,
-        &OZ, &OW,
+        &Z, &W,
         o->verbose,
-        o->debugIter,
         reportData, 
         reportSys, 
+        o->debugIter,
         reportHeights
       );
       
     /* Free working storage: */
     free(debugPrefix);
     for (k = 0; k <= MAX_LEVEL; k++) 
-      { /* {ms_OW[k]} is always NULL or new: */
-        float_image_free(ms_OW[k]); 
+      { /* {ms_W[k]} is always NULL or new: */
+        float_image_free(ms_W[k]); 
         /* {ms_RZ[0]} is the original: */
         if (k > 0) { float_image_free(ms_RZ[k]); }
       }
@@ -563,16 +563,16 @@ float_image_t *read_fni_file(char *fileName)
     return I;
   }
 
-void write_fni_file(float_image_t *I, char *fileName, int indent)
+void write_fni_file(float_image_t *I, char *fileName, int32_t indent)???
   { demand(fileName != NULL, "file name not given");
-    fprintf(stderr, "%*sWriting %s ...", indent, "", fileName);
+    fprintf(stderr, "%*sWriting %s ...", indent???, "", fileName);
     FILE* wr = open_write(fileName, FALSE);
     float_image_write(wr, I);
     if (wr == stdout) { fflush(wr); } else { fclose(wr); }
     fprintf(stderr, "\n");
   }
 
-options_t *parse_options(int argc, char **argv)
+options_t *parse_options(int32_t argc, char **argv)
   { argparser_t *pp = argparser_new(stderr, argc, argv);
     argparser_set_help(pp, PROG_NAME " version " PROG_VERS ", usage:\n" PROG_HELP);
     argparser_set_info(pp, PROG_INFO);
@@ -581,7 +581,7 @@ options_t *parse_options(int argc, char **argv)
     options_t *o = (options_t *)notnull(malloc(sizeof(options_t)), "no mem"); 
 
     if (argparser_keyword_present(pp, "-maxIter"))
-      { o->maxIter = argparser_get_next_int(pp, 0, INT64_MAX); }
+      { o->maxIter = (int32_t)argparser_get_next_int(pp, 0, INT64_MAX); }
     else
       { o->maxIter = DEFAULT_MAX_ITER; }
     
@@ -604,7 +604,7 @@ options_t *parse_options(int argc, char **argv)
     o->debugSys = argparser_keyword_present(pp, "-debugSys");
     
     if (argparser_keyword_present(pp, "-debugIter"))
-      { o->debugIter = argparser_get_next_int(pp, 0, INT32_MAX); }
+      { o->debugIter = (int32_t)argparser_get_next_int(pp, 0, INT32_MAX); }
     else
       { o->debugIter = 0; }
 
