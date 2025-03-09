@@ -1,4 +1,4 @@
-# Last edited on 2023-02-04 07:02:23 by stolfi
+# Last edited on 2025-02-17 02:29:38 by stolfi
 
 PROG := fni_kodak_adjust
 
@@ -101,7 +101,7 @@ IN_PREFIX  := ${IN_DIR}/${IMGNAME}
 
 IN_FNI := ${IN_PREFIX}-r.fni
 IN_PNG := ${IN_PREFIX}-r.png
-IN_EPS := ${IN_PREFIX}-r.eps
+IN_PLT := ${IN_PREFIX}-r.eps
 
 IN_CORNERS := ${IN_PREFIX}-chart.corners
 
@@ -110,29 +110,29 @@ OUT_PREFIX := ${OUT_DIR}/${IMGNAME}-${UGRAY}${UWHITE}${USELF}-${BTYPE}-${NTERMS}
 
 OUT_ADJ_FNI := ${OUT_PREFIX}-adj.fni
 OUT_ADJ_PNG := ${OUT_PREFIX}-adj.png
-OUT_ADJ_EPS := ${OUT_PREFIX}-adj.eps
+OUT_ADJ_PLT_EPS := ${OUT_PREFIX}-adj.eps
 
 OUT_RAW_CHART_FNI := ${OUT_PREFIX}-chart-raw.fni
 OUT_RAW_CHART_PNG := ${OUT_PREFIX}-chart-raw.png
-OUT_RAW_CHART_EPS := ${OUT_PREFIX}-chart-raw.eps
+OUT_RAW_CHART_PLT_EPS := ${OUT_PREFIX}-chart-raw.eps
 
 OUT_ADJ_CHART_FNI := ${OUT_PREFIX}-chart-adj.fni
 OUT_ADJ_CHART_PNG := ${OUT_PREFIX}-chart-adj.png
-OUT_ADJ_CHART_EPS := ${OUT_PREFIX}-chart-adj.eps
+OUT_ADJ_CHART_PLT_EPS := ${OUT_PREFIX}-chart-adj.eps
 
 OUT_RAW_STRIP_FNI := ${OUT_PREFIX}-strip-raw.fni
 OUT_RAW_STRIP_PNG := ${OUT_PREFIX}-strip-raw.png
-OUT_RAW_STRIP_EPS := ${OUT_PREFIX}-strip-raw.eps
+OUT_RAW_STRIP_PLT_PNG := ${OUT_PREFIX}-strip-raw.eps
 
 OUT_ADJ_STRIP_FNI := ${OUT_PREFIX}-strip-adj.fni
 OUT_ADJ_STRIP_PNG := ${OUT_PREFIX}-strip-adj.png
-OUT_ADJ_STRIP_EPS := ${OUT_PREFIX}-strip-adj.eps
+OUT_ADJ_STRIP_PLT_PNG := ${OUT_PREFIX}-strip-adj.eps
 
 OUT_VAL_TABLE_TBL := ${OUT_PREFIX}-val-tbl.fni
-OUT_VAL_TABLE_EPS := ${OUT_PREFIX}-val-tbl.eps
+OUT_VAL_TABLE_PLT_EPS := ${OUT_PREFIX}-val-tbl.eps
 
 OUT_LOG_TABLE_TBL := ${OUT_PREFIX}-log-tbl.fni
-OUT_LOG_TABLE_EPS := ${OUT_PREFIX}-log-tbl.eps
+OUT_LOG_TABLE_PLT_EPS := ${OUT_PREFIX}-log-tbl.eps
 
 OUT_BASIS_TBL := ${OUT_PREFIX}-basis.fni
 IXMDLAST := ${shell echo "${NTERMS}-4" | bc -lq | printf "%02d" `cat`}
@@ -140,13 +140,13 @@ IXFIN2 := ${shell echo "${NTERMS}-3" | bc -lq | printf "%02d" `cat`}
 IXFIN1 := ${shell echo "${NTERMS}-2" | bc -lq | printf "%02d" `cat`}
 IXFIN0 := ${shell echo "${NTERMS}-1" | bc -lq | printf "%02d" `cat`}
 
-OUT_BASIS_I0_EPS := ${OUT_PREFIX}-00-00-basis.eps
-OUT_BASIS_I1_EPS := ${OUT_PREFIX}-01-01-basis.eps
-OUT_BASIS_I2_EPS := ${OUT_PREFIX}-02-02-basis.eps
-OUT_BASIS_MD_EPS := ${OUT_PREFIX}-03-${IXMDLAST}-basis.eps
-OUT_BASIS_F2_EPS := ${OUT_PREFIX}-${IXFIN2}-${IXFIN2}-basis.eps
-OUT_BASIS_F1_EPS := ${OUT_PREFIX}-${IXFIN1}-${IXFIN1}-basis.eps
-OUT_BASIS_F0_EPS := ${OUT_PREFIX}-${IXFIN0}-${IXFIN0}-basis.eps
+OUT_BASIS_I0_PLT_EPS := ${OUT_PREFIX}-00-00-basis.eps
+OUT_BASIS_I1_PLT_EPS := ${OUT_PREFIX}-01-01-basis.eps
+OUT_BASIS_I2_PLT_EPS := ${OUT_PREFIX}-02-02-basis.eps
+OUT_BASIS_MD_PLT_EPS := ${OUT_PREFIX}-03-${IXMDLAST}-basis.eps
+OUT_BASIS_F2_PLT_EPS := ${OUT_PREFIX}-${IXFIN2}-${IXFIN2}-basis.eps
+OUT_BASIS_F1_PLT_EPS := ${OUT_PREFIX}-${IXFIN1}-${IXFIN1}-basis.eps
+OUT_BASIS_F0_PLT_EPS := ${OUT_PREFIX}-${IXFIN0}-${IXFIN0}-basis.eps
 
 # Expand the ${TESTARGS} fields into comand line switches:
 
@@ -301,135 +301,134 @@ clean-show:
 # ----------------------------------------------------------------------
 # Plot photometric correction table
 
-OUT_TABLE_ALL_EPS := ${OUT_VAL_TABLE_EPS} ${OUT_LOG_TABLE_EPS}
+OUT_TABLE_ALL_PLT_EPS := ${OUT_VAL_TABLE_PLT_EPS} ${OUT_LOG_TABLE_PLT_EPS}
 
-do-plot-tab: ${OUT_TABLE_ALL_EPS}
-	${PSVIEW} ${OUT_VAL_TABLE_EPS}
-	${PSVIEW} ${OUT_LOG_TABLE_EPS}
+do-plot-tab: ${OUT_TABLE_ALL_PLT_EPS}
+	${PSVIEW} ${OUT_VAL_TABLE_PLT_EPS}
+	${PSVIEW} ${OUT_LOG_TABLE_PLT_EPS}
         
-${OUT_VAL_TABLE_EPS}: ${OUT_VAL_TABLE_TBL}
+${OUT_VAL_TABLE_PLT_EPS}: ${OUT_VAL_TABLE_TBL}
 	table_plot.sh \
             -title "${TESTDIR} - Photometric Correction Table" \
             -range -0.05 1.25 \
             < ${OUT_VAL_TABLE_TBL} \
-            > ${OUT_VAL_TABLE_EPS}
+            > ${OUT_VAL_TABLE_PLT_EPS}
         
-${OUT_LOG_TABLE_EPS}: ${OUT_LOG_TABLE_TBL}
+${OUT_LOG_TABLE_PLT_EPS}: ${OUT_LOG_TABLE_TBL}
 	table_plot.sh \
             -title "${TESTDIR} - Logspace Photometric Correction Table" \
             < ${OUT_LOG_TABLE_TBL} \
-            > ${OUT_LOG_TABLE_EPS}
+            > ${OUT_LOG_TABLE_PLT_EPS}
 
 clean-plot-tab:
-	/bin/rm -f ${OUT_TABLE_ALL_EPS}
+	/bin/rm -f ${OUT_TABLE_ALL_PLT_EPS}
 
 # ----------------------------------------------------------------------
 # Plot values from chart strips:
         
-OUT_STRIP_ALL_EPS := ${OUT_RAW_STRIP_EPS} ${OUT_ADJ_STRIP_EPS}
+OUT_STRIP_ALL_PLT_PNG := ${OUT_RAW_STRIP_PLT_PNG} ${OUT_ADJ_STRIP_PLT_PNG}
 
-do-plot-str: ${OUT_STRIP_ALL_EPS}
-	${PSVIEW} ${OUT_RAW_STRIP_EPS}
-	${PSVIEW} ${OUT_ADJ_STRIP_EPS}
+do-plot-str: ${OUT_STRIP_ALL_PLT}
+	display ${OUT_RAW_STRIP_PLT_PNG} ${OUT_ADJ_STRIP_PLT_PNG}
         
-${OUT_RAW_STRIP_EPS}: ${OUT_RAW_STRIP_FNI}
+${OUT_RAW_STRIP_PLT_PNG}: ${OUT_RAW_STRIP_FNI}
 	fni_plot.sh \
             -channel 0 \
             -rows -kodak \
             -title "${TESTDIR} - Kodak Q-13 Chart Strip" \
             < ${OUT_RAW_STRIP_FNI} \
-            > ${OUT_RAW_STRIP_EPS}
+            > ${OUT_RAW_STRIP_PLT_PNG}
         
-${OUT_ADJ_STRIP_EPS}: ${OUT_ADJ_STRIP_FNI}
+${OUT_ADJ_STRIP_PLT_PNG}: ${OUT_ADJ_STRIP_FNI}
 	fni_plot.sh \
             -channel 0 \
             -rows -kodak \
             -title "${TESTDIR} - Kodak Q-13 Chart Strip" \
             < ${OUT_ADJ_STRIP_FNI} \
-            > ${OUT_ADJ_STRIP_EPS}
+            > ${OUT_ADJ_STRIP_PLT_PNG}
 
 clean-plot-str:
-	/bin/rm -f ${OUT_STRIP_ALL_EPS}
+	/bin/rm -f ${OUT_STRIP_ALL_PLT_PNG}
 
 # ----------------------------------------------------------------------
 # Plot fitting basis:
 
-OUT_BASIS_ALL_EPS := \
-          ${OUT_BASIS_I0_EPS} \
-	  ${OUT_BASIS_I1_EPS} \
-	  ${OUT_BASIS_I2_EPS} \
-	  ${OUT_BASIS_MD_EPS} \
-	  ${OUT_BASIS_F2_EPS} \
-	  ${OUT_BASIS_F1_EPS} \
-	  ${OUT_BASIS_F0_EPS}
+OUT_BASIS_ALL_PLT_EPS := \
+          ${OUT_BASIS_I0_PLT_EPS} \
+	  ${OUT_BASIS_I1_PLT_EPS} \
+	  ${OUT_BASIS_I2_PLT_EPS} \
+	  ${OUT_BASIS_MD_PLT_EPS} \
+	  ${OUT_BASIS_F2_PLT_EPS} \
+	  ${OUT_BASIS_F1_PLT_EPS} \
+	  ${OUT_BASIS_F0_PLT_EPS}
 
-do-plot-bas: ${OUT_BASIS_ALL_EPS}
-	${PSVIEW} ${OUT_BASIS_I0_EPS}
-	${PSVIEW} ${OUT_BASIS_I1_EPS}
-	${PSVIEW} ${OUT_BASIS_I2_EPS}
-	${PSVIEW} ${OUT_BASIS_MD_EPS}
-	${PSVIEW} ${OUT_BASIS_F2_EPS}
-	${PSVIEW} ${OUT_BASIS_F1_EPS}
-	${PSVIEW} ${OUT_BASIS_F0_EPS}
+do-plot-bas: ${OUT_BASIS_ALL_PLT_EPS}
+	${PSVIEW} ${OUT_BASIS_I0_PLT_EPS}
+	${PSVIEW} ${OUT_BASIS_I1_PLT_EPS}
+	${PSVIEW} ${OUT_BASIS_I2_PLT_EPS}
+	${PSVIEW} ${OUT_BASIS_MD_PLT_EPS}
+	${PSVIEW} ${OUT_BASIS_F2_PLT_EPS}
+	${PSVIEW} ${OUT_BASIS_F1_PLT_EPS}
+	${PSVIEW} ${OUT_BASIS_F0_PLT_EPS}
 
-${OUT_BASIS_I0_EPS}: ${OUT_BASIS_TBL}
+${OUT_BASIS_I0_PLT_EPS}: ${OUT_BASIS_TBL}
 	basis_plot.sh \
             -xrange -0.1 +1.1 \
             -title "${TESTDIR} - Basis Function 0" \
             -index 0 \
             < ${OUT_BASIS_TBL} \
-            > ${OUT_BASIS_I0_EPS}
+            > ${OUT_BASIS_I0_PLT_EPS}
         
-${OUT_BASIS_I1_EPS}: ${OUT_BASIS_TBL}
+${OUT_BASIS_I1_PLT_EPS}: ${OUT_BASIS_TBL}
 	basis_plot.sh \
             -xrange -0.1 +1.1 \
             -title "${TESTDIR} - Basis Function 1" \
             -index 1 \
             < ${OUT_BASIS_TBL} \
-            > ${OUT_BASIS_I1_EPS}
+            > ${OUT_BASIS_I1_PLT_EPS}
         
-${OUT_BASIS_I2_EPS}: ${OUT_BASIS_TBL}
+${OUT_BASIS_I2_PLT_EPS}: ${OUT_BASIS_TBL}
 	basis_plot.sh \
             -xrange -0.1 +1.1 \
             -title "${TESTDIR} - Basis Function 2" \
             -index 2 \
             < ${OUT_BASIS_TBL} \
-            > ${OUT_BASIS_I2_EPS}
+            > ${OUT_BASIS_I2_PLT_EPS}
         
-${OUT_BASIS_MD_EPS}: ${OUT_BASIS_TBL}
+${OUT_BASIS_MD_PLT_EPS}: ${OUT_BASIS_TBL}
 	basis_plot.sh \
             -xrange -0.1 +1.1 \
             -title "${TESTDIR} - Basis Function 3-${IXMDLAST}" \
             -indices 3 ${IXMDLAST} \
             < ${OUT_BASIS_TBL} \
-            > ${OUT_BASIS_MD_EPS}
+            > ${OUT_BASIS_MD_PLT_EPS}
         
-${OUT_BASIS_F2_EPS}: ${OUT_BASIS_TBL}
+${OUT_BASIS_F2_PLT_EPS}: ${OUT_BASIS_TBL}
 	basis_plot.sh \
             -xrange -0.1 +1.1 \
             -title "${TESTDIR} - Basis Function ${IXFIN2}" \
             -index ${IXFIN2} \
             < ${OUT_BASIS_TBL} \
-            > ${OUT_BASIS_F2_EPS}
+            > ${OUT_BASIS_F2_PLT_EPS}
         
-${OUT_BASIS_F1_EPS}: ${OUT_BASIS_TBL}
+${OUT_BASIS_F1_PLT_EPS}: ${OUT_BASIS_TBL}
 	basis_plot.sh \
             -xrange -0.1 +1.1 \
             -title "${TESTDIR} - Basis Function ${IXFIN1}" \
             -index ${IXFIN1} \
             < ${OUT_BASIS_TBL} \
-            > ${OUT_BASIS_F1_EPS}
+            > ${OUT_BASIS_F1_PLT_EPS}
         
-${OUT_BASIS_F0_EPS}: ${OUT_BASIS_TBL}
+${OUT_BASIS_F0_PLT_EPS}: ${OUT_BASIS_TBL}
 	basis_plot.sh \
             -xrange -0.1 +1.1 \
             -title "${TESTDIR} - Basis Function ${IXFIN0} " \
             -index ${IXFIN0} \
             < ${OUT_BASIS_TBL} \
-            > ${OUT_BASIS_F0_EPS}
+            > ${OUT_BASIS_F0_PLT_EPS}
 
 clean-plot-bas:
-	/bin/rm -f ${OUT_BASIS_ALL_EPS}
+	/bin/rm -f ${OUT_BASIS_ALL_PLT_EPS}
 
 # 
 # End make ${TESTARGS}

@@ -4,7 +4,7 @@
 
 /* Copyright © 2006 by the State University of Campinas (UNICAMP).*/
 /* See the copyright, authorship, and warranty notice at end of file.*/
-/* Last edited on 2025-01-21 19:53:54 by stolfi*/
+/* Last edited on 2025-03-01 19:27:32 by stolfi*/
 
 #define PROG_HELP \
   PROG_NAME " \\\n" \
@@ -353,7 +353,7 @@ int main (int argc,char** argv)
     /* Read input sphere images: */
     int NC = 1;           /* Number of channels - must be 1. */
     int NX = -1, NY = -1; /* Image dimensions - must be all the same. */
-    image_vec_t IMGV = fsp_read_float_image_list(&(o->images), &NC, &NX, &NY);
+    pst_map_vec_t IMGV = fsp_read_float_image_list(&(o->images), &NC, &NX, &NY);
     fprintf(stderr, "image size = %d × %d\n", NX, NY);
 
     /* Provide defaults for image center and stretch: */
@@ -375,7 +375,7 @@ int main (int argc,char** argv)
     float_image_t *NRM = float_image_new(3, NX, NY);
 
     /* Allocate synthetic sphere images: */
-    image_vec_t SYNV = image_vec_new(NF);
+    pst_map_vec_t SYNV = pst_map_vec_new(NF);
     for(i = 0; i < NF; i++) { SYNV.e[i] = float_image_new(NC, NX, NY); }
 
     /* Regularize model light field: */
@@ -509,8 +509,8 @@ void fsp_write_light_field_parameters(char *prefix, int i, pst_light_t *lht)
     free(name);
   }
 
-image_vec_t fsp_read_float_image_list(string_vec_t *name, int *NCP, int *NXP, int *NYP)
-  { image_vec_t IMVEC = image_vec_new(name->ne);
+pst_map_vec_t fsp_read_float_image_list(string_vec_t *name, int *NCP, int *NXP, int *NYP)
+  { pst_map_vec_t IMVEC = pst_map_vec_new(name->ne);
     int i;
     for (i = 0; i < name->ne; i++)
       { IMVEC.e[i] = fsp_read_float_image(name->e[i], NCP, NXP, NYP); }

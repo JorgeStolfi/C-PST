@@ -4,7 +4,7 @@
 
 #define slope_to_height_C_COPYRIGHT "Copyright © 2005 by the State University of Campinas (UNICAMP)"
 
-/* Last edited on 2025-01-16 17:39:47 by stolfi */
+/* Last edited on 2025-02-24 15:45:11 by stolfi */
 
 #define PROG_HELP \
   "  " PROG_NAME " \\\n" \
@@ -139,13 +139,13 @@
   "  {PREFIX}-eZ.txt\n" \
   "    A one-line summary of the error, with the format\n" \
   "\n" \
-  "     {level} {NX} {NY} {iter} {change} {sRZ} {sOZ} {sEZ} {sre}.\n" \
+  "     {level} {NX} {NY} {iter} {change} {sRZ} {sOZ} {sEZ} {sRelE}.\n" \
   "\n" \
   "    where {NX,NY} is the image size, {iter} is the number of" \
   " iterations performed at level 0, {change} is the change in" \
   " the last iteration, {sRZ} and {sOZ} are the deviations of" \
   " the {RZ} and {OZ} maps, {sEZ} is the RMS value of {EZ}, and" \
-  " {sre} is the relative error.\n" \
+  " {sRelE} is the relative error.\n" \
   "\n" \
   "  The following files are produced for each level" \
   " of the recursion (except the topmost one in some" \
@@ -450,7 +450,7 @@ void compute_and_write_height_map(options_t *o, float_image_t *IG, float_image_t
                 if (o->verbose) 
                   { fprintf(stderr, "%*sShrinking reference map from %d × %d to", indent, "", NX_pre_IG, NY_pre_IG); }
                 int32_t avgWidth = 2;
-                ms_RZ[level] = pst_height_map_shrink(ms_RZ[cur_level]);
+                ms_RZ[level] = float_image_mscale_shrink(ms_RZ[cur_level]???);
               }
             NX_cur_RZ = ms_RZ[level]->sz[1];
             NY_cur_RZ = ms_RZ[level]->sz[2];
@@ -501,8 +501,8 @@ void compute_and_write_height_map(options_t *o, float_image_t *IG, float_image_t
             if (writeError && (IW != NULL)) { assert(ms_W[level] != NULL); }
             pst_height_map_level_analyze_and_write
               ( debugPrefix, level, iter, change, 
-                ms_Z, ms_RZ[level], ms_W[level], 
-                writeImages, writeError
+                ms_Z, ms_RZ[level], ms_W[level],
+                writeImages, zeroMean, writeError
               );
           }
         
@@ -513,8 +513,8 @@ void compute_and_write_height_map(options_t *o, float_image_t *IG, float_image_t
             if (writeError && (IW != NULL)) { assert(ms_W[level] != NULL); }
             pst_height_map_level_analyze_and_write
               ( debugPrefix, level, -1, change, 
-                ms_Z, ms_RZ[level], ms_W[level], 
-                writeImages, writeError
+                ms_Z, ms_RZ[level], ms_W[level],
+                writeImages, zeroMean, writeError
               );
           }
         
@@ -523,8 +523,8 @@ void compute_and_write_height_map(options_t *o, float_image_t *IG, float_image_t
             bool_t writeError = writeImages && analyzeError;
             pst_height_map_level_analyze_and_write
               ( o->outPrefix, -1, -1, change, 
-                ms_Z, ms_RZ[level], ms_W[level], 
-                writeImages, writeError
+                ms_Z, ms_RZ[level], ms_W[level],
+                writeImages, zeroMean, writeError
               );
           }
       }

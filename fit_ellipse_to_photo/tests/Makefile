@@ -1,4 +1,4 @@
-# Last edited on 2012-12-15 10:13:26 by stolfilocal
+# Last edited on 2025-02-17 02:35:14 by stolfi
 
 PROGDIR := ..
 PROG := fit_ellipse_to_photo
@@ -115,25 +115,24 @@ OUT_CLIP_MSK_PNM_FILE := ${OUT_PREFIX}-clip-msk.pgm
 OUT_CLIP_EPAR_FILE := ${OUT_PREFIX}-clip.epar
 OUT_CLIP_CPAR_FILE := ${OUT_PREFIX}-clip.cpar
 
-
 ifeq "/${DEBUG}" "/Y"
   OUT_CTR_FNI_FILE := ${OUT_PREFIX}-ctr.fni
   OUT_CTR_PNM_FILE := ${OUT_PREFIX}-ctr.pgm
-  OUT_CTR_EPS_FILE := ${OUT_PREFIX}-ctr.eps
+  OUT_CTR_PLT_PNG_FILE := ${OUT_PREFIX}-ctr.png
 
   OUT_RAD_FNI_FILE := ${OUT_PREFIX}-rad.fni
   OUT_RAD_PNM_FILE := ${OUT_PREFIX}-rad.pgm
-  OUT_RAD_EPS_FILE := ${OUT_PREFIX}-rad.eps
+  OUT_RAD_PLT_PNG_FILE := ${OUT_PREFIX}-rad.png
   DEBUG_OPT := -debug
 endif
 ifeq "/${DEBUG}" "/N"
   OUT_CTR_FNI_FILE :=
   OUT_CTR_PNM_FILE :=
-  OUT_CTR_EPS_FILE :=
+  OUT_CTR_PLT_PNG_FILE :=
 
   OUT_RAD_FNI_FILE :=
   OUT_RAD_PNM_FILE :=
-  OUT_RAD_EPS_FILE :=
+  OUT_RAD_PLT_PNG_FILE :=
   DEBUG_OPT :=
 endif
 
@@ -147,14 +146,14 @@ OUT_PNM_FILES := \
   ${OUT_CLIP_IMG_PNM_FILE} \
   ${OUT_CLIP_MSK_PNM_FILE}
 
-OUT_EPS_FILES := \
-  ${OUT_CTR_EPS_FILE} \
-  ${OUT_RAD_EPS_FILE}
+OUT_PLT_PNG_FILES := \
+  ${OUT_CTR_PLT_PNG_FILE} \
+  ${OUT_RAD_PLT_PNG_FILE}
 
-single-test: ${OUT_EPAR_FILE} ${OUT_PNM_FILES} ${OUT_EPS_FILES}
+single-test: ${OUT_EPAR_FILE} ${OUT_PNM_FILES} ${OUT_PLT_PNG_FILES}
 	display ${DISPLAY_OPTS} ${OUT_PNM_FILES}
 ifeq "/${DEBUG}" "/Y"
-	display ${OUT_EPS_FILES}
+	display ${OUT_PLT_PNG_FILES}
 endif
 
 ${OUT_EPAR_FILE}: ${IN_PNM_FILE} ${PROGDIR}/${PROG} ${SCRIPT}
@@ -191,7 +190,7 @@ ${OUT_CLIP_CPAR_FILE}: ${OUT_EPAR_FILE}
 	ls -l ${OUT_CLIP_CPAR_FILE}
 
 # ----------------------------------------------------------------------
-# Conversion of diagnostic images and plots to PNM/EPS:
+# Conversion of diagnostic images and plots to PNM/PLT_PNG:
 # Only if ${DEBUG} == Y
 
 ifeq "/${DEBUG}" "/Y"
@@ -202,25 +201,23 @@ ${OUT_CTR_FNI_FILE}: ${OUT_EPAR_FILE}
 ${OUT_RAD_FNI_FILE}: ${OUT_EPAR_FILE}
 	ls -l ${OUT_RAD_FNI_FILE}
 
-
 ${OUT_CTR_PNM_FILE}: ${OUT_CTR_FNI_FILE}
 	fni_to_pnm -min 0 < $< | pnmgamma 2.2 | pamflip -tb > $@
 
 ${OUT_RAD_PNM_FILE}: ${OUT_RAD_FNI_FILE}
 	fni_to_pnm -min 0 < $< | pnmgamma 2.2 | pamflip -tb > $@
 
-
-${OUT_CTR_EPS_FILE}: ${OUT_CTR_FNI_FILE}
+${OUT_CTR_PLT_PNG_FILE}: ${OUT_CTR_FNI_FILE}
 	fni_plot.sh \
           -title "center adjust" \
           < ${OUT_CTR_FNI_FILE} \
-          > ${OUT_CTR_EPS_FILE}
+          > ${OUT_CTR_PLT_PNG_FILE}
 
-${OUT_RAD_EPS_FILE}: ${OUT_RAD_FNI_FILE}
+${OUT_RAD_PLT_PNG_FILE}: ${OUT_RAD_FNI_FILE}
 	fni_plot.sh \
           -title "radius/stretch adjust" \
           < ${OUT_RAD_FNI_FILE} \
-          > ${OUT_RAD_EPS_FILE}
+          > ${OUT_RAD_PLT_PNG_FILE}
 
 endif
 # End ${DEBUG} == Y section

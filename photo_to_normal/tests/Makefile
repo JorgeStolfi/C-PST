@@ -1,4 +1,4 @@
-# Last edited on 2023-02-04 07:01:26 by stolfi
+# Last edited on 2025-02-17 02:38:25 by stolfi
 
 PROG := photo_to_normal
 
@@ -177,19 +177,19 @@ showppmnormals: ${OUT_NRM}.fni ${REF_NRM}.fni
           display -title '%f' ${OUT_NRM}.ppm ${REF_NRM}.ppm
 
 showepsnormals: ${OUT_NRM}.fni
-	fni_plot.sh \
+	???fni_plot.sh \
             -channel 0 \
             -title "NX(X,Y)" \
             < ${OUT_NRM}.fni \
             > ${OUT_NRM_X}.eps && \
           ${PSVIEW} ${OUT_NRM_X}.eps
-	fni_plot.sh \
+	???fni_plot.sh \
             -channel 1 \
             -title "NY(X,Y)" \
             < ${OUT_NRM}.fni \
             > ${OUT_NRM_Y}.eps && \
           ${PSVIEW} ${OUT_NRM_Y}.eps
-	fni_plot.sh \
+	???fni_plot.sh \
             -channel 2 \
             -title "NZ(X,Y)" \
             < ${OUT_NRM}.fni \

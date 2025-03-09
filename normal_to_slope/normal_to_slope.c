@@ -4,7 +4,7 @@
 
 /* Copyright © 2006 by the State University of Campinas (UNICAMP). */
 /* See the copyright, authorship, and warranty notice at end of file. */
-/* Last edited on 2015-10-18 02:58:46 by stolfilocal */
+/* Last edited on 2025-03-04 18:35:10 by stolfi */
 
 #define PROG_HELP \
   "  " PROG_NAME " \\\n" \

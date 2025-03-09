@@ -1,5 +1,5 @@
 #! /bin/bash
-# Last edited on 2012-12-15 10:12:14 by stolfilocal
+# Last edited on 2025-02-17 02:32:19 by stolfi
  
 PROG_NAME=${0##*/}
 PROG_DESC="create an  EPS plot of a FNI image and display it"
@@ -19,10 +19,10 @@ PROG_INFO=(
   "\n${PROG_HELP[@]}"
   "\n"
   "\nDESCRIPTION"
-  "\n  Reads the image file \"{NAME}.fni\" and creates an Encapsulated"
-  "\n PostScript file \"{NAME}.eps\" with a plot of the intensities"
+  "\n  Reads the image file \"{NAME}.fni\" and creates a PNG"
+  "\n file \"{NAME}-${CHANNEL}.png\" with a plot of the intensities"
   "\n of the selected {CHANNEL}, using fni_plot.sh(1).  Then shows that"
-  "\n file with ghostview(1)."
+  "\n file with display(1)."
   "\n"
   "\n  If \"-blur\" is used, the image is passed through a"
   "\n smoothing filter with a window of width {HNUM} and"
@@ -82,15 +82,15 @@ name=${name%.fni}
 echo "${PROG_NAME}: name = ${name} channel = ${channel} ops = ( ${plotops[@]} )"  1>&2
 
 infni="${name}.fni"
-oteps="${name}.eps"
+otpng="${name}_${channel}.png"
 
-# Create EPS file:
+# Create PNG file:
 fni_plot.sh \
     ${plotops[@]} \
     -channel ${channel} \
     -title "${infni} ${channel}" \
   < ${infni} \
-  > ${oteps} \
-  && ghostview ${oteps}
+  > ${otpng} \
+  && display ${otpng}
 
  

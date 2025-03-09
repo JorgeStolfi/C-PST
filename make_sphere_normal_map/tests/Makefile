@@ -1,4 +1,4 @@
-# Last edited on 2023-02-04 07:01:45 by stolfi
+# Last edited on 2025-02-17 02:38:12 by stolfi
         
 PROG := make_sphere_normal_map
 
@@ -122,17 +122,17 @@ show-clean:
 	/bin/rm -f ${OUTNAME}-{X,Y,Z}.eps ${OUTNAME}.ppm
 
 plot-normals: ${OUTNAME}.fni
-	fni_plot.sh \
+	???fni_plot.sh \
             -channel 0 -title "nX" \
             < ${OUTNAME}.fni \
             > ${OUTNAME}-X.eps && \
           ${PSVIEW} ${OUTNAME}-X.eps
-	fni_plot.sh \
+	???fni_plot.sh \
             -channel 1 -title "nY" \
             < ${OUTNAME}.fni \
             > ${OUTNAME}-Y.eps && \
           ${PSVIEW} ${OUTNAME}-Y.eps
-	fni_plot.sh \
+	???fni_plot.sh \
             -channel 2 -title "nZ" \
             < ${OUTNAME}.fni \
             > ${OUTNAME}-Z.eps && \

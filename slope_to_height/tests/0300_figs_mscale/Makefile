@@ -1,4 +1,4 @@
-# Last edited on 2023-02-04 07:01:21 by stolfi
+# Last edited on 2025-02-17 02:40:52 by stolfi
 
 PROG := slope_to_height
 
@@ -53,9 +53,9 @@ SHELL =	/bin/sh
 # PSVIEW := gv
 PSVIEW := evince
 
-FNI_VIEW := ../../fni_view/fni_view
-FNI_TO_PNM := ../../fni_to_pnm/fni_to_pnm
-FNI_PLOT := ../../fni_plot/fni_plot.sh
+FNI_VIEW := fni_view
+FNI_TO_PNM := fni_to_pnm
+FNI_PLOT := fni_plot.sh
 
 .PHONY:: \
   tidy \

@@ -1,5 +1,5 @@
 # Makefile for generic C program
-# Last edited on 2023-02-04 07:02:18 by stolfi
+# Last edited on 2025-02-17 02:36:53 by stolfi
 
 PROG := fit_light_to_photo
 
@@ -45,13 +45,13 @@ all: run-all-tests
 # Cleanup
 
 clean::
-	-/bin/rm -f *.sys *.fni *.pgm *.eps *.ppm
+	-/bin/rm -f *.sys *.fni *.pgm *.png *.ppm
         
 # ======================================================================
 # Delete secondary plot files:
 
 tidy:
-	-/bin/rm -f *.sys *-d-[0-9][0-9]-{Z,dZ}.fni *.pgm *.eps *.ppm
+	-/bin/rm -f *.sys *-d-[0-9][0-9]-{Z,dZ}.fni *.pgm *.png *.ppm
 
 # ====================================================================
 # Running tests
@@ -192,15 +192,15 @@ clean-show:
 # ----------------------------------------------------------------------
 # 3D Postscript plot of light setup:
 
-do-plot: ${OUT_DIF_EPS}
-	${PSVIEW} ${OUT_DIF_EPS}
+do-plot: ${OUT_DIF_PLT_PNG}
+	${PSVIEW} ${OUT_DIF_PLT_PNG}
         
-${OUT_DIF_EPS}: ${OUT_DIF_FNI}
+${OUT_DIF_PLT_PNG}: ${OUT_DIF_FNI}
 	fni_plot.sh \
             -channel 0 \
             -title "difference" \
             < ${OUT_DIF_FNI} \
-            > ${OUT_DIF_EPS}
+            > ${OUT_DIF_PLT_PNG}
 
 clean-plot:
 

@@ -1,4 +1,4 @@
-# Last edited on 2023-02-04 07:01:16 by stolfi
+# Last edited on 2025-02-17 02:40:04 by stolfi
 
 PROG := slope_to_height
 
@@ -128,13 +128,11 @@ LATER_TESTS :=
 
 SHELL =	/bin/sh
 
-# PSVIEW := ghostview
-# PSVIEW := gv
-PSVIEW := evince
+PNGVIEW := display
 
-FNI_VIEW := ${PROGDIR}/../fni_view/fni_view
-FNI_TO_PNM := ${PROGDIR}/../fni_to_pnm/fni_to_pnm
-FNI_PLOT := ${PROGDIR}/../fni_plot/fni_plot.sh
+FNI_VIEW := fni_view
+FNI_TO_PNM := fni_to_pnm
+FNI_PLOT := ???fni_plot.sh
 
 .PHONY:: \
   tidy \
@@ -355,13 +353,13 @@ plot-slopes: ${IN_G_FNI} ${FNI_PLOT}
             -range -${G_MAX} ${G_MAX} \
             < ${IN_G_FNI} \
             > ${OUT_GX_EPS} && \
-          ${PSVIEW} ${OUT_GX_EPS}
+          ${PNGVIEW} ${OUT_GX_EPS}
 	${FNI_PLOT} \
             -channel 1 -title "dZ/dY" \
             -range -${G_MAX} ${G_MAX} \
             < ${IN_G_FNI} \
             > ${OUT_GY_EPS} && \
-          ${PSVIEW} ${OUT_GY_EPS}
+          ${PNGVIEW} ${OUT_GY_EPS}
 
 plot-weight: ${IN_W_FNI} ${FNI_PLOT}
 	${FNI_PLOT} \
@@ -370,7 +368,7 @@ plot-weight: ${IN_W_FNI} ${FNI_PLOT}
             -ztics 0.5 \
             < ${IN_W_FNI} \
             > ${OUT_W_EPS} && \
-          ${PSVIEW} ${OUT_W_EPS}
+          ${PNGVIEW} ${OUT_W_EPS}
 
 plot-height: ${OUT_Z_FNI}
 	${FNI_PLOT} \
@@ -380,7 +378,7 @@ plot-height: ${OUT_Z_FNI}
             -ztics ${Z_STEP} \
             < ${OUT_Z_FNI} \
             > ${OUT_Z_EPS} && \
-          ${PSVIEW} ${OUT_Z_EPS}
+          ${PNGVIEW} ${OUT_Z_EPS}
 
 plot-ref-height: ${OUT_RZ_FNI}
 	${FNI_PLOT} \
@@ -390,7 +388,7 @@ plot-ref-height: ${OUT_RZ_FNI}
             -ztics ${Z_STEP} \
             < ${IN_RZ_FNI} \
             > ${OUT_RZ_EPS} && \
-          ${PSVIEW} ${OUT_RZ_EPS}
+          ${PNGVIEW} ${OUT_RZ_EPS}
 
 plot-zerror: ${OUT_EZ_fni}
 	${FNI_PLOT} \
@@ -398,7 +396,7 @@ plot-zerror: ${OUT_EZ_fni}
             -range -${ERR_MAX} +${ERR_MAX} \
             < ${OUT_EZ_FNI} \
             > ${OUT_EZ_EPS} && \
-          ${PSVIEW} ${OUT_EZ_EPS}
+          ${PNGVIEW} ${OUT_EZ_EPS}
 
 delete-plots:
 	-/bin/rm -f ${OUT_PREFIX}-*.eps}

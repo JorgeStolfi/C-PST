@@ -4,7 +4,7 @@
 
 /* Copyright © 2004 by the Fluminense Federal University (UFF). */
 /* See the copyright, authorship, and warranty notice at end of file. */
-/* Last edited on 2025-01-21 19:53:41 by stolfi */
+/* Last edited on 2025-03-01 19:27:53 by stolfi */
 
 #define PROG_HELP \
   PROG_NAME "\\\n" \
@@ -183,7 +183,7 @@ float_image_t *ptn_read_image(char *name, int *NCP, int *NXP, int *NYP);
     these image attributes must match the values of those
     variables. */
 
-void ptn_free_images(image_vec_t *img);
+void ptn_free_images(pst_map_vec_t *img);
   /* Reclaims the images {img[*]} and sets {img} to the empty vector. */
 
 void ptn_write_normals(char *name, float_image_t *NRM);
@@ -229,7 +229,7 @@ int main(int argc, char** argv)
         int GNRMNC = -1;
         float_image_t *GNRM = ptn_read_image(gop->normal, &GNRMNC, &GNX, &GNY);
         /* Read images of gauge {g} (must have size {GNX,GNY}): */
-        image_vec_t G = ptn_read_images(&(gop->photos), &GNC, &GNX, &GNY);  
+        pst_map_vec_t G = ptn_read_images(&(gop->photos), &GNC, &GNX, &GNY);  
         tab[g] = pst_signature_build_table (&(gop->pos), GNRM, &G, FALSE);
         float_image_free(GNRM);
         ptn_free_images(&G);
@@ -239,7 +239,7 @@ int main(int argc, char** argv)
     fprintf(stderr, "reading scene images...\n");
     int SNC = GNC; /* Channels of scene photos must match gauge photos. */
     int SNX = -1, SNY = -1; /* Number of columns and rows of scene images. */
-    image_vec_t S = ptn_read_images(&(o->photos), &SNC, &SNX, &SNY);
+    pst_map_vec_t S = ptn_read_images(&(o->photos), &SNC, &SNX, &SNY);
     
     demand(SNC == GNC, "channel cound mismatch between gauge and scene images");
 
@@ -283,13 +283,13 @@ void ptn_write_float_image(char *name, char *tag, float_image_t *I)
     free(fileName);
   }
 
-image_vec_t ptn_read_images(string_vec_t *name, int *NCP, int *NXP, int *NYP)
+pst_map_vec_t ptn_read_images(string_vec_t *name, int *NCP, int *NXP, int *NYP)
   { int NF = name->ne; /* Number of files: */
-    image_vec_t imv = image_vec_new(name->ne);
+    pst_map_vec_t imv = pst_map_vec_new(name->ne);
     int i;
     for (i = 0; i < NF; i++)
       { imv.e[i] = ptn_read_image(name->e[i], NCP, NXP, NYP); }
-    image_vec_trim(&imv, NF);
+    pst_map_vec_trim(&imv, NF);
     return imv;
   }
   
@@ -320,10 +320,10 @@ float_image_t *ptn_read_image(char *name, int *NCP, int *NXP, int *NYP)
     return img;
   }
 
-void ptn_free_images(image_vec_t *img)
+void ptn_free_images(pst_map_vec_t *img)
   { int i;
     for (i = 0; i < img->ne; i++) { float_image_free(img->e[i]); }
-    image_vec_trim(img, 0);
+    pst_map_vec_trim(img, 0);
   }
 
 options_t *ptn_parse_options(int argc, char **argv)

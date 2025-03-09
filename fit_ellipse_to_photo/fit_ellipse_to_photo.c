@@ -5,7 +5,7 @@
 #define fit_ellipse_to_photo_C_COPYRIGHT \
   "Copyright © 2009 by the State University of Campinas (UNICAMP)"
 
-/* Last edited on 2025-01-21 19:50:23 by stolfi*/
+/* Last edited on 2025-02-17 02:32:59 by stolfi*/
 
 /* !!! See how it is best to generate the normal map. !!! */
 /* !!! Add radial distortion {kappa} to the parameters. !!! */
@@ -146,7 +146,8 @@
   " position; and \"{PREFIX}-ctr.fni\", a plot of the mismatch" \
   " as the radius and stretch length are varied around" \
   " the given values.  These files are in the FNI format" \
-  " (see {float_image.h}) and may be viewed with fni_plot(1).\n" \
+  " (see {float_image.h}) and may be viewed with" \
+  " fni_view(1) or fni_plot(1).\n" \
   "\n" \
   "  -outPrefix {PREFIX} \n" \
   "    Specifies the common prefix for names of all output" \

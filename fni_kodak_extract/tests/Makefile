@@ -1,4 +1,4 @@
-# Last edited on 2023-02-04 07:02:07 by stolfi
+# Last edited on 2025-02-17 02:37:55 by stolfi
 
 PROG := fni_kodak_extract
 
@@ -254,7 +254,7 @@ do-plot: ${EPS_PLOT_ALL}
 	${PSVIEW} ${OUT_LOG_SCALE_RATIO_EPS}
         
 ${OUT_GRAY_SCALE_EPS}: ${OUT_GRAY_SCALE_FNI}
-	fni_plot.sh \
+	???fni_plot.sh \
             -channel 0 \
             -rows -kodak \
             -title "${TESTDIR} - Kodak Q-13 Gray Scale" \
@@ -262,7 +262,7 @@ ${OUT_GRAY_SCALE_EPS}: ${OUT_GRAY_SCALE_FNI}
             > ${OUT_GRAY_SCALE_EPS}
         
 ${OUT_BODY_STRIP_EPS}: ${OUT_BODY_STRIP_FNI}
-	fni_plot.sh \
+	???fni_plot.sh \
             -channel 0 \
             -rows -kodak \
             -title "${TESTDIR} - Kodak Q-13 Chart Gray Strip" \
@@ -270,7 +270,7 @@ ${OUT_BODY_STRIP_EPS}: ${OUT_BODY_STRIP_FNI}
             > ${OUT_BODY_STRIP_EPS}
         
 ${OUT_FRAME_STRIP_EPS}: ${OUT_FRAME_STRIP_FNI}
-	fni_plot.sh \
+	???fni_plot.sh \
             -channel 0 \
             -rows -kodak \
             -title "${TESTDIR} - Background Strip" \
@@ -282,7 +282,7 @@ ${OUT_LOG_SCALE_RATIO_EPS}: ${OUT_GRAY_SCALE_FNI} ${OUT_BODY_STRIP_FNI}
             ${OUT_GRAY_SCALE_FNI} \
             ${OUT_BODY_STRIP_FNI} \
             > ${OUT_LOG_SCALE_RATIO_FNI}
-	fni_plot.sh \
+	???fni_plot.sh \
             -channel 0 \
             -rows -kodakLog \
             -title "${TESTDIR} - Kodak Q-13 Log Scale/Strip Ratio" \

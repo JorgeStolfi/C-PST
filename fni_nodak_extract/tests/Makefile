@@ -1,4 +1,4 @@
-# Last edited on 2023-02-04 07:01:54 by stolfi
+# Last edited on 2025-02-17 02:38:04 by stolfi
 
 PROG := fni_nodak_extract
 
@@ -221,7 +221,7 @@ do-plot: ${EPS_PLOT_ALL}
 	${PSVIEW} ${OUT_SCALE_EPS}
         
 ${OUT_SCALE_EPS}: ${OUT_SCALE_FNI}
-	fni_plot.sh \
+	???fni_plot.sh \
             -channel 0 \
             -rows -kodak \
             -title "${TESTIMG} - N-Spot Chart" \

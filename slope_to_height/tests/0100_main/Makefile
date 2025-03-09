@@ -1,4 +1,4 @@
-# Last edited on 2023-02-04 07:01:11 by stolfi
+# Last edited on 2025-02-17 02:39:42 by stolfi
 
 PROG := slope_to_height
 
@@ -200,9 +200,9 @@ SHELL =	/bin/sh
 # PSVIEW := gv
 PSVIEW := evince
 
-FNI_VIEW := ${PROGDIR}/../fni_view/fni_view
-FNI_TO_PNM := ${PROGDIR}/../fni_to_pnm/fni_to_pnm
-FNI_PLOT := ${PROGDIR}/../fni_plot/fni_plot.sh
+FNI_VIEW := fni_view
+FNI_TO_PNM := fni_to_pnm
+FNI_PLOT := ???fni_plot.sh
 
 .PHONY:: \
   tidy \
@@ -222,14 +222,14 @@ all: run-all-tests
 # Cleanup
 
 clean::
-	-/bin/rm -f out/*.{sys,fni,pgm,eps,ppm}
+	-/bin/rm -f out/*.{sys,fni,PNG,pgm,ppm}
         
 # ======================================================================
 # Delete secondary plot files:
 
 tidy:
 	-/bin/rm -f *.sys *-d-[0-9][0-9]-{Z,dZ}.fni
-	-/bin/rm *.pgm *.eps *.ppm
+	-/bin/rm *.pgm *.png *.ppm
 
 # ====================================================================
 # Running tests
@@ -302,20 +302,20 @@ OUT_Z_PGM := ${OUT_PREFIX}-Z.pgm
 OUT_RZ_PGM := ${OUT_PREFIX}-rZ.pgm
 OUT_EZ_PGM := ${OUT_PREFIX}-eZ.pgm
 
-# EPS plot files:
-OUT_GX_EPS := ${OUT_PREFIX}-GX.eps
-OUT_GY_EPS := ${OUT_PREFIX}-GY.eps
-OUT_W_EPS  := ${OUT_PREFIX}-W.eps
-OUT_Z_EPS := ${OUT_PREFIX}-Z.eps
-OUT_RZ_EPS := ${OUT_PREFIX}-rZ.eps
-OUT_EZ_EPS := ${OUT_PREFIX}-eZ.eps
+# PNG plot files:
+OUT_GX_PNG := ${OUT_PREFIX}-GX.png
+OUT_GY_PNG := ${OUT_PREFIX}-GY.png
+OUT_W_PNG  := ${OUT_PREFIX}-W.png
+OUT_Z_PNG := ${OUT_PREFIX}-Z.png
+OUT_RZ_PNG := ${OUT_PREFIX}-rZ.png
+OUT_EZ_PNG := ${OUT_PREFIX}-eZ.png
 
 # Debugging files:
 
 OUT_DEBUG_PREFIX := ${OUT_PREFIX}-d
 
 DEBUG_Z_FNI := ${OUT_DEBUG_PREFIX}-00-Z.fni
-DEBUG_Z_EPS := ${OUT_DEBUG_PREFIX}-00-Z.eps
+DEBUG_Z_PNG := ${OUT_DEBUG_PREFIX}-00-Z.png
 
 ifeq "/${DEBUG}" "/YES"
   DEBUG_OPTS := -debugG -debugZ -debugIter ${DEBUG_ITER}
@@ -410,14 +410,14 @@ plot-slopes: ${OUT_Z_FNI} ${IN_G_FNI} ${FNI_PLOT}
             -channel 0 -title "dZ/dX" \
             -range -${G_MAX} ${G_MAX} \
             < ${IN_G_FNI} \
-            > ${OUT_GX_EPS} && \
-          ${PSVIEW} ${OUT_GX_EPS}
+            > ${OUT_GX_PNG} && \
+          ${PSVIEW} ${OUT_GX_PNG}
 	${FNI_PLOT} \
             -channel 1 -title "dZ/dY" \
             -range -${G_MAX} ${G_MAX} \
             < ${IN_G_FNI} \
-            > ${OUT_GY_EPS} && \
-          ${PSVIEW} ${OUT_GY_EPS}
+            > ${OUT_GY_PNG} && \
+          ${PSVIEW} ${OUT_GY_PNG}
 
 plot-weight: ${OUT_Z_FNI} ${IN_W_FNI} ${FNI_PLOT}
 	${FNI_PLOT} \
@@ -425,8 +425,8 @@ plot-weight: ${OUT_Z_FNI} ${IN_W_FNI} ${FNI_PLOT}
             -range -0.1 2.1 \
             -ztics 0.5 \
             < ${IN_W_FNI} \
-            > ${OUT_W_EPS} && \
-          ${PSVIEW} ${OUT_W_EPS}
+            > ${OUT_W_PNG} && \
+          ${PSVIEW} ${OUT_W_PNG}
 
 plot-z: ${OUT_Z_FNI}
 	${FNI_PLOT} \
@@ -435,8 +435,8 @@ plot-z: ${OUT_Z_FNI}
             -range ${Z_MIN} ${Z_MAX} \
             -ztics ${Z_STEP} \
             < ${OUT_Z_FNI} \
-            > ${OUT_Z_EPS} && \
-          ${PSVIEW} ${OUT_Z_EPS}
+            > ${OUT_Z_PNG} && \
+          ${PSVIEW} ${OUT_Z_PNG}
 
 plot-ref-z: ${OUT_Z_FNI} ${OUT_RZ_FNI}
 	${FNI_PLOT} \
@@ -445,16 +445,16 @@ plot-ref-z: ${OUT_Z_FNI} ${OUT_RZ_FNI}
             -range ${RZ_MIN} ${RZ_MAX} \
             -ztics ${Z_STEP} \
             < ${IN_RZ_FNI} \
-            > ${OUT_RZ_EPS} && \
-          ${PSVIEW} ${OUT_RZ_EPS}
+            > ${OUT_RZ_PNG} && \
+          ${PSVIEW} ${OUT_RZ_PNG}
 
 plot-zerror: ${OUT_Z_FNI} ${OUT_EZ_fni}
 	${FNI_PLOT} \
             -channel 0 -title "eZ" \
             -range -${ERR_MAX} +${ERR_MAX} \
             < ${OUT_EZ_FNI} \
-            > ${OUT_EZ_EPS} && \
-          ${PSVIEW} ${OUT_EZ_EPS}
+            > ${OUT_EZ_PNG} && \
+          ${PSVIEW} ${OUT_EZ_PNG}
 
 plot-iter-z-zerror-all: ${OUT_Z_FNI}
 	for f in `ls -1 ${OUT_PREFIX}-*-Z.fni | sort | egrep -e '[-][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][-]'` ; do \
@@ -470,9 +470,9 @@ ifneq "${OUT_ITER_Z_FNI}" ""
 # Get the error file for the height file ${OUT_ITER_Z_FNI}
 OUT_ITER_EZ_FNI := ${subst -Z.fni,-eZ.fni,${OUT_ITER_Z_FNI}}
 
-# Get the height and error EPS file names
-OUT_ITER_Z_EPS := ${subst -Z.fni,-Z.eps,${OUT_ITER_Z_FNI}}
-OUT_ITER_EZ_EPS := ${subst -eZ.fni,-eZ.eps,${OUT_ITER_EZ_FNI}}
+# Get the height and error PNG file names
+OUT_ITER_Z_PNG := ${subst -Z.fni,-Z.png,${OUT_ITER_Z_FNI}}
+OUT_ITER_EZ_PNG := ${subst -eZ.fni,-eZ.png,${OUT_ITER_EZ_FNI}}
 
 ITER_LEVEL := ${shell echo "${OUT_ITER_Z_FNI}" | sed -e 's:^.*-deb-::g' -e 's:-[0-9][0-9][0-9][0-9]*-.*$$::g'}
 
@@ -490,16 +490,16 @@ plot-iter-z: ${OUT_Z_FNI} ${OUT_ITER_Z_FNI}
             -range ${ITER_Z_MIN} ${ITER_Z_MAX} \
             -ztics ${ITER_Z_STEP} \
             < ${OUT_ITER_Z_FNI} \
-            > ${OUT_ITER_Z_EPS} && \
-          ${PSVIEW} ${OUT_ITER_Z_EPS}
+            > ${OUT_ITER_Z_PNG} && \
+          ${PSVIEW} ${OUT_ITER_Z_PNG}
 
 plot-iter-zerror: ${OUT_Z_FNI} ${OUT_ITER_EZ_fni}
 	${FNI_PLOT} \
             -channel 0 -title "eZ" \
             -range -${ERR_MAX} +${ERR_MAX} \
             < ${OUT_ITER_EZ_FNI} \
-            > ${OUT_ITER_EZ_EPS} && \
-          ${PSVIEW} ${OUT_ITER_EZ_EPS}
+            > ${OUT_ITER_EZ_PNG} && \
+          ${PSVIEW} ${OUT_ITER_EZ_PNG}
 
 #
 # End make ${TEST} ${OUT_ITER_Z_FNI}
@@ -507,7 +507,7 @@ plot-iter-zerror: ${OUT_Z_FNI} ${OUT_ITER_EZ_fni}
 endif
 
 delete-plots:
-	-/bin/rm -f ${OUT_PREFIX}-*.eps}
+	-/bin/rm -f ${OUT_PREFIX}-*.png}
 
 # 
 # End make ${TEST}
